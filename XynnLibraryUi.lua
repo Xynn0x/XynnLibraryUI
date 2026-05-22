@@ -626,14 +626,30 @@ function Library:CreateWindow(Settings)
             end
 
             -- Close when clicking outside
+           local function IsMouseInside(GuiObject, MousePos)
+                local Pos = GuiObject.AbsolutePosition
+                local Size = GuiObject.AbsoluteSize
+            
+                return MousePos.X >= Pos.X
+                    and MousePos.X <= Pos.X + Size.X
+                    and MousePos.Y >= Pos.Y
+                    and MousePos.Y <= Pos.Y + Size.Y
+            end
+            
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            
                     local MousePos = UserInputService:GetMouseLocation()
-                    if not Dropdown.AbsoluteRect:Contains(MousePos) and not DropList.AbsoluteRect:Contains(MousePos) then
+            
+                    local InDropdown = IsMouseInside(Dropdown, MousePos)
+                    local InDropList = IsMouseInside(DropList, MousePos)
+            
+                    if not InDropdown and not InDropList then
                         if DropList.Visible then
                             CloseDropdown()
                         end
                     end
+            
                 end
             end)
 
