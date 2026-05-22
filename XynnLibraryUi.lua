@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local Library = {}
 Library.Flags = {}
 Library.Connections = {}
-Library.AccentColor = Color3.fromRGB(0, 170, 255)  -- Default Accent
+Library.AccentColor = Color3.fromRGB(0, 170, 255)
 
 local function Tween(Object, Time, Properties)
     TweenService:Create(Object, TweenInfo.new(Time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), Properties):Play()
@@ -22,7 +22,7 @@ end
 
 -- ==================== AUTO SCALE FOR MOBILE ====================
 local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local ScaleFactor = IsMobile and 0.78 or 1  -- Sedikit lebih besar dari 0.75 agar tetap nyaman
+local ScaleFactor = IsMobile and 0.78 or 1
 
 -- ==================== SET ACCENT COLOR ====================
 function Library:SetAccentColor(Color)
@@ -357,7 +357,7 @@ function Library:CreateWindow(Settings)
             Tween(Button, 0.1, {BackgroundColor3 = Library.AccentColor, TextColor3 = Color3.fromRGB(255,255,255)})
         end
 
-        -- ==================== ADD SECTION, DIVIDER, BUTTON, TOGGLE (Scaled) ====================
+        -- Section, Divider, Button, Toggle (tetap sama)
         function Tab:AddSection(Text)
             local Section = Create("TextLabel", {
                 Parent = Page,
@@ -458,7 +458,7 @@ function Library:CreateWindow(Settings)
             end)
         end
 
-        -- ==================== SLIDER (FIXED FOR MOBILE) ====================
+        -- ==================== SLIDER TERBARU (PALING RESPONSIF DI MOBILE) ====================
         function Tab:AddSlider(Data)
             local Value = Data.Default or Data.Min
             Library.Flags[Data.Name] = Value
@@ -468,6 +468,7 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 58 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "",
+                AutoButtonColor = false  -- Penting untuk mobile
             })
             Create("UICorner", {Parent = Slider, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Slider, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -519,24 +520,27 @@ function Library:CreateWindow(Settings)
 
             local Dragging = false
 
-            -- Support Mouse & Touch
+            local function UpdateValueFromPosition(position)
+                local BarPos = Bar.AbsolutePosition
+                local BarSize = Bar.AbsoluteSize
+                local percent = math.clamp((position.X - BarPos.X) / BarSize.X, 0, 1)
+                Value = math.floor(Data.Min + (Data.Max - Data.Min) * percent)
+                Library.Flags[Data.Name] = Value
+                UpdateSlider()
+                if Data.Callback then Data.Callback(Value) end
+            end
+
+            -- Input Handling (Mobile + PC)
             Slider.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     Dragging = true
+                    UpdateValueFromPosition(input.Position)  -- Update langsung saat disentuh
                 end
             end)
 
             UserInputService.InputChanged:Connect(function(input)
-                if not Dragging then return end
-                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                    local MousePos = UserInputService:GetMouseLocation()
-                    local BarPos = Bar.AbsolutePosition
-                    local BarSize = Bar.AbsoluteSize
-                    local percent = math.clamp((MousePos.X - BarPos.X) / BarSize.X, 0, 1)
-                    Value = math.floor(Data.Min + (Data.Max - Data.Min) * percent)
-                    Library.Flags[Data.Name] = Value
-                    UpdateSlider()
-                    if Data.Callback then Data.Callback(Value) end
+                if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    UpdateValueFromPosition(input.Position)
                 end
             end)
 
@@ -550,10 +554,8 @@ function Library:CreateWindow(Settings)
             return Slider
         end
 
-        -- Dropdown tetap sama (sudah cukup bagus)
+        -- ==================== DROPDOWN ====================
         function Tab:AddDropdown(Data)
-            -- ... (kode dropdown kamu yang lama, biarkan tetap sama)
-            -- Saya tidak ubah karena sudah cukup stabil
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
                 return
