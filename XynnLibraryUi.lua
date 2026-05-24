@@ -495,7 +495,7 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(0, 60 * ScaleFactor, 0, 20 * ScaleFactor),
                 Position = UDim2.new(1, -70 * ScaleFactor, 0, 8 * ScaleFactor),
                 Text = tostring(Value),
-                TextColor3 = Library.AccentColor,
+                TextColor3 = Color3.fromRGB(255,255,255),
                 Font = Enum.Font.GothamSemibold,
                 TextSize = 14 * ScaleFactor,
                 TextXAlignment = Enum.TextXAlignment.Right
