@@ -666,6 +666,252 @@ function Library:CreateWindow(Settings)
             return Dropdown
         end
 
+        function Tab:AddMultiDropdown(Data)
+            if not Data.Options or #Data.Options == 0 then
+                warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
+                return
+            end
+
+            local Selected = {}
+
+            if Data.Default then
+                for _, v in ipairs(Data.Default) do
+                    Selected[v] = true
+                end
+            end
+
+            local function GetSelectedList()
+                local List = {}
+
+                for _, option in ipairs(Data.Options) do
+                    if Selected[option] then
+                        table.insert(List, option)
+                    end
+                end
+
+                return List
+            end
+
+            Library.Flags[Data.Name] = GetSelectedList()
+
+            local Dropdown = Create("TextButton", {
+                Parent = Page,
+                Size = UDim2.new(1, -20 * ScaleFactor, 0, 48 * ScaleFactor),
+                BackgroundColor3 = Color3.fromRGB(32, 32, 32),
+                Text = "",
+                Font = Enum.Font.GothamSemibold,
+                TextSize = 14 * ScaleFactor,
+                TextColor3 = Color3.new(1,1,1),
+                BorderSizePixel = 0,
+                ZIndex = 50
+            })
+
+            Create("UICorner", {
+                Parent = Dropdown,
+                CornerRadius = UDim.new(0, 12 * ScaleFactor)
+            })
+
+            Create("UIStroke", {
+                Parent = Dropdown,
+                Color = Color3.fromRGB(50,50,50),
+                Thickness = 1
+            })
+
+            local Label = Create("TextLabel", {
+                Parent = Dropdown,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 12, 0, 0),
+                Size = UDim2.new(1, -50, 1, 0),
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Font = Enum.Font.GothamSemibold,
+                TextColor3 = Color3.new(1,1,1),
+                TextSize = 14 * ScaleFactor
+            })
+
+            local Arrow = Create("TextLabel", {
+                Parent = Dropdown,
+                Size = UDim2.new(0, 30, 1, 0),
+                Position = UDim2.new(1, -35, 0, 0),
+                BackgroundTransparency = 1,
+                Text = "▼",
+                Font = Enum.Font.GothamBold,
+                TextColor3 = Color3.fromRGB(180,180,180),
+                TextSize = 16 * ScaleFactor
+            })
+
+            local function UpdateText()
+                local Count = #GetSelectedList()
+
+                if Count == 0 then
+                    Label.Text = Data.Name .. ": None"
+                else
+                    Label.Text = Data.Name .. ": " .. Count .. " Selected"
+                end
+            end
+
+            UpdateText()
+
+            local DropList = Create("Frame", {
+                Parent = ScreenGui,
+                BackgroundColor3 = Color3.fromRGB(28,28,28),
+                BorderSizePixel = 0,
+                Visible = false,
+                ZIndex = 200
+            })
+
+            Create("UICorner", {
+                Parent = DropList,
+                CornerRadius = UDim.new(0,10)
+            })
+
+            Create("UIStroke", {
+                Parent = DropList,
+                Color = Color3.fromRGB(60,60,60),
+                Thickness = 1
+            })
+
+            Create("UIListLayout", {
+                Parent = DropList,
+                Padding = UDim.new(0,2),
+                SortOrder = Enum.SortOrder.LayoutOrder
+            })
+
+            local function UpdatePosition()
+                DropList.Position = UDim2.new(
+                    0,
+                    Dropdown.AbsolutePosition.X,
+                    0,
+                    Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4
+                )
+            end
+
+            local function Open()
+                UpdatePosition()
+
+                DropList.Visible = true
+
+                Tween(DropList,0.25,{
+                    Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        (#Data.Options * 32) + 10
+                    )
+                })
+            end
+
+            local function Close()
+                Tween(DropList,0.2,{
+                    Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        0
+                    )
+                })
+
+                task.delay(0.2,function()
+                    DropList.Visible = false
+                end)
+            end
+
+            Dropdown.MouseButton1Click:Connect(function()
+                if DropList.Visible then
+                    Close()
+                else
+                    Open()
+                end
+            end)
+
+            for _, option in ipairs(Data.Options) do
+                local OptionBtn = Create("TextButton", {
+                    Parent = DropList,
+                    Size = UDim2.new(1,0,0,30),
+                    BackgroundTransparency = 1,
+                    Text = "",
+                    ZIndex = 201
+                })
+
+                local Check = Create("Frame", {
+                    Parent = OptionBtn,
+                    Size = UDim2.new(0,18,0,18),
+                    Position = UDim2.new(0,8,0.5,-9),
+                    BackgroundColor3 = Selected[option]
+                        and Library.AccentColor
+                        or Color3.fromRGB(55,55,55),
+                    BorderSizePixel = 0
+                })
+
+                Create("UICorner", {
+                    Parent = Check,
+                    CornerRadius = UDim.new(0,4)
+                })
+
+                Create("TextLabel", {
+                    Parent = OptionBtn,
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(0,35,0,0),
+                    Size = UDim2.new(1,-35,1,0),
+                    Text = option,
+                    TextColor3 = Color3.fromRGB(220,220,220),
+                    Font = Enum.Font.Gotham,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left
+                })
+
+                OptionBtn.MouseButton1Click:Connect(function()
+                    Selected[option] = not Selected[option]
+
+                    Tween(Check,0.15,{
+                        BackgroundColor3 =
+                            Selected[option]
+                            and Library.AccentColor
+                            or Color3.fromRGB(55,55,55)
+                    })
+
+                    Library.Flags[Data.Name] = GetSelectedList()
+
+                    UpdateText()
+
+                    if Data.Callback then
+                        Data.Callback(GetSelectedList())
+                    end
+                end)
+            end
+
+            UserInputService.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if DropList.Visible then
+                        local MousePos = UserInputService:GetMouseLocation()
+
+                        local Pos = DropList.AbsolutePosition
+                        local Size = DropList.AbsoluteSize
+
+                        local Inside =
+                            MousePos.X >= Pos.X and
+                            MousePos.X <= Pos.X + Size.X and
+                            MousePos.Y >= Pos.Y and
+                            MousePos.Y <= Pos.Y + Size.Y
+
+                        local DPos = Dropdown.AbsolutePosition
+                        local DSize = Dropdown.AbsoluteSize
+
+                        local InsideDropdown =
+                            MousePos.X >= DPos.X and
+                            MousePos.X <= DPos.X + DSize.X and
+                            MousePos.Y >= DPos.Y and
+                            MousePos.Y <= DPos.Y + DSize.Y
+
+                        if not Inside and not InsideDropdown then
+                            Close()
+                        end
+                    end
+                end
+            end)
+
+            return Dropdown
+        end
+
         return Tab
     end
 
