@@ -699,9 +699,6 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 48 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "",
-                Font = Enum.Font.GothamSemibold,
-                TextSize = 14 * ScaleFactor,
-                TextColor3 = Color3.new(1,1,1),
                 BorderSizePixel = 0,
                 ZIndex = 50
             })
@@ -756,6 +753,8 @@ function Library:CreateWindow(Settings)
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 BorderSizePixel = 0,
                 Visible = false,
+                Size = UDim2.new(0, 0, 0, 0),
+                ClipsDescendants = true,
                 ZIndex = 200
             })
 
@@ -770,11 +769,15 @@ function Library:CreateWindow(Settings)
                 Thickness = 1
             })
 
-            Create("UIListLayout", {
+            local ListLayout = Create("UIListLayout", {
                 Parent = DropList,
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
+
+            local function GetDropdownHeight()
+                return ListLayout.AbsoluteContentSize.Y + 6
+            end
 
             local function UpdatePosition()
                 DropList.Position = UDim2.new(
@@ -785,23 +788,49 @@ function Library:CreateWindow(Settings)
                 )
             end
 
+            local Opened = false
+            local Closing = false
+
             local function Open()
+                if Opened then
+                    return
+                end
+
                 UpdatePosition()
 
-                DropList.Visible = true
+                DropList.Size = UDim2.new(
+                    0,
+                    Dropdown.AbsoluteSize.X,
+                    0,
+                    0
+                )
 
-                Tween(DropList,0.25,{
+                DropList.Visible = true
+                Opened = true
+
+                Arrow.Text = "▲"
+
+                Tween(DropList, 0.25, {
                     Size = UDim2.new(
                         0,
                         Dropdown.AbsoluteSize.X,
                         0,
-                        (#Data.Options * 32) + 10
+                        GetDropdownHeight()
                     )
                 })
             end
 
             local function Close()
-                Tween(DropList,0.2,{
+                if not Opened or Closing then
+                    return
+                end
+
+                Closing = true
+                Opened = false
+
+                Arrow.Text = "▼"
+
+                Tween(DropList, 0.2, {
                     Size = UDim2.new(
                         0,
                         Dropdown.AbsoluteSize.X,
@@ -810,13 +839,14 @@ function Library:CreateWindow(Settings)
                     )
                 })
 
-                task.delay(0.2,function()
+                task.delay(0.2, function()
                     DropList.Visible = false
+                    Closing = false
                 end)
             end
 
             Dropdown.MouseButton1Click:Connect(function()
-                if DropList.Visible then
+                if Opened then
                     Close()
                 else
                     Open()
@@ -829,6 +859,7 @@ function Library:CreateWindow(Settings)
                     Size = UDim2.new(1,0,0,30),
                     BackgroundTransparency = 1,
                     Text = "",
+                    AutoButtonColor = false,
                     ZIndex = 201
                 })
 
@@ -881,7 +912,7 @@ function Library:CreateWindow(Settings)
 
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    if DropList.Visible then
+                    if Opened and DropList.Visible then
                         local MousePos = UserInputService:GetMouseLocation()
 
                         local Pos = DropList.AbsolutePosition
