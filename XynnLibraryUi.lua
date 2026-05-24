@@ -618,7 +618,6 @@ function Library:CreateWindow(Settings)
 
             local function CloseDropdown()
                 Tween(DropList, 0.2, {Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)})
-                task.wait(0.22)
                 DropList.Visible = false
             end
 
