@@ -13,759 +13,333 @@ Supports dark/light themes, mobile scaling, ColorPicker, Keybind, MultiDropdown,
 
 ---
 
-## Table of Contents
+# 🌟 Xynn Hub UI Library — Documentation
 
-- [Quick Start](#quick-start)
-- [Library Configuration](#library-configuration)
-  - [SetTheme](#settheme)
-  - [SetAccentColor](#setaccentcolor)
-- [CreateWindow](#createwindow)
-- [Window Methods](#window-methods)
-  - [SetToggleKey](#settogglekey)
-  - [AddTab](#addtab)
-- [Tab Elements](#tab-elements)
-  - [AddSection](#addsection)
-  - [AddDivider](#adddivider)
-  - [AddLabel](#addlabel)
-  - [AddParagraph](#addparagraph)
-  - [AddButton](#addbutton)
-  - [AddToggle](#addtoggle)
-  - [AddSlider](#addslider)
-  - [AddDropdown](#adddropdown)
-  - [AddMultiDropdown](#addmultidropdown)
-  - [AddTextBox](#addtextbox)
-  - [AddKeybind](#addkeybind)
-  - [AddColorPicker](#addcolorpicker)
-  - [AddProgressBar](#addprogressbar)
-- [Utilities](#utilities)
-  - [Notify](#notify)
-  - [Watermark](#watermark)
-  - [LoadingScreen](#loadingscreen)
-  - [Destroy](#destroy)
-- [Library.Flags](#libraryflagss)
-- [Themes Reference](#themes-reference)
+> A modern, mobile-friendly Roblox UI Library with support for tabs, toggles, sliders, dropdowns, and more.
 
 ---
 
-## Quick Start
+## 📦 Installation
+
+Paste the library loader at the top of your script:
 
 ```lua
-local Library = loadstring(game:HttpGet("YOUR_RAW_URL_HERE"))()
-
--- Optional: set theme before creating window
-Library:SetTheme("Midnight")
-Library:SetAccentColor(Color3.fromRGB(130, 80, 255))
-
-local Window = Library:CreateWindow({
-    Title       = "My Hub",
-    Subtitle    = "v1.0",
-    Theme       = "Dark",
-    AccentColor = Color3.fromRGB(0, 170, 255),
-})
-
-local Tab = Window:AddTab("Main", "⚙")
-
-Tab:AddToggle({
-    Name     = "God Mode",
-    Default  = false,
-    Callback = function(state)
-        print("God Mode:", state)
-    end,
-})
+local Library = loadstring(game:HttpGet("YOUR_RAW_SCRIPT_URL"))()
 ```
 
 ---
 
-## Library Configuration
+## 🪟 CreateWindow
 
-### `SetTheme`
-
-Sets the global color theme **before** or **after** creating the window.
-
-```lua
-Library:SetTheme("Dark")
-```
-
-| Parameter | Type   | Description                                      |
-|-----------|--------|--------------------------------------------------|
-| Name      | string | Theme name: `"Dark"`, `"Midnight"`, `"Light"`, `"Ocean"`, `"Rose"` |
-
----
-
-### `SetAccentColor`
-
-Changes the library's accent color (used on toggles, sliders, active tabs, etc.).
-
-```lua
-Library:SetAccentColor(Color3.fromRGB(130, 80, 255))
-```
-
----
-
-## CreateWindow
-
-Creates the main UI window. Returns a `Window` object.
+Creates the main GUI window.
 
 ```lua
 local Window = Library:CreateWindow({
-    Title       = "Xynn Hub",     -- Window title
-    Subtitle    = "v2.0",         -- Small subtitle below title (optional)
-    Theme       = "Dark",         -- Theme preset (optional, can use SetTheme instead)
-    AccentColor = Color3.fromRGB(0, 170, 255),  -- Accent color override (optional)
+    Title = "My Hub",
+    AccentColor = Color3.fromRGB(0, 170, 255) -- optional
 })
 ```
 
-| Option      | Type         | Default             | Description              |
-|-------------|--------------|---------------------|--------------------------|
-| Title       | string       | `"Xynn Hub"`        | Window title text        |
-| Subtitle    | string       | `""`                | Subtitle under title     |
-| Theme       | string       | `"Dark"`            | Initial theme preset     |
-| AccentColor | Color3       | `RGB(0, 170, 255)`  | Accent highlight color   |
+| Parameter     | Type          | Description                          |
+|---------------|---------------|--------------------------------------|
+| `Title`       | `string`      | Title shown on the window header     |
+| `AccentColor` | `Color3`      | Accent color for tabs, toggles, etc. |
 
 ---
 
-## Window Methods
+## 🎨 SetAccentColor
 
-### `SetToggleKey`
-
-Binds a keyboard key to toggle the window's visibility.
+Changes the global accent color at any time.
 
 ```lua
-Window:SetToggleKey(Enum.KeyCode.RightShift)
-```
-
-| Parameter | Type          | Description                  |
-|-----------|---------------|------------------------------|
-| Key       | Enum.KeyCode  | Key to toggle the window     |
-
----
-
-### `AddTab`
-
-Adds a tab to the sidebar. Returns a `Tab` object.
-
-```lua
-local MainTab     = Window:AddTab("Main", "⚙")
-local CombatTab   = Window:AddTab("Combat", "⚔")
-local VisualTab   = Window:AddTab("Visuals", "👁")
-local SettingsTab = Window:AddTab("Settings")  -- no icon is fine too
-```
-
-| Parameter | Type   | Description                          |
-|-----------|--------|--------------------------------------|
-| Name      | string | Tab label shown in sidebar           |
-| Icon      | string | Optional emoji/icon prefix           |
-
-> **Tip:** The sidebar has a built-in search box that filters tabs by name in real-time.
-
----
-
-## Tab Elements
-
-All tab elements are added in order (top to bottom, with automatic scrolling).
-
----
-
-### `AddSection`
-
-A styled section header with an accent-colored underline. Used to visually group elements.
-
-```lua
-Tab:AddSection("Combat Settings")
+Library:SetAccentColor(Color3.fromRGB(255, 100, 0))
 ```
 
 ---
 
-### `AddDivider`
+## 📁 AddTab
 
-A thin horizontal line. Optionally displays a muted label above it.
+Adds a new tab to the sidebar.
 
 ```lua
-Tab:AddDivider()           -- plain line
-Tab:AddDivider("Advanced") -- line with label
+local Tab = Window:AddTab("Combat")
+```
+
+> The **first tab added** is automatically selected and visible.
+
+---
+
+## 📂 AddSection
+
+Adds a section label inside a tab to group elements visually.
+
+```lua
+Tab:AddSection("Aimbot Settings")
 ```
 
 ---
 
-### `AddLabel`
+## ➖ AddDivider
 
-A simple read-only text display. Returns an object with a `Set` method for dynamic updates.
+Adds a horizontal divider line, optionally with a label.
 
 ```lua
-local StatusLabel = Tab:AddLabel({
-    Text = "Status: Waiting...",
-})
+-- Simple divider
+Tab:AddDivider()
 
--- Update later
-StatusLabel.Set("Status: Active!")
+-- Divider with label
+Tab:AddDivider("Visual Options")
 ```
-
-| Option | Type   | Description          |
-|--------|--------|----------------------|
-| Text   | string | Initial label text   |
-
-**Returned object:**
-
-| Method       | Description               |
-|--------------|---------------------------|
-| `Set(text)`  | Updates the label text    |
-| `Get()`      | Returns current text      |
 
 ---
 
-### `AddParagraph`
+## 🔘 AddButton
 
-A block with a bold title and a wrapped body text. Good for info panels or descriptions.
-
-```lua
-local Para = Tab:AddParagraph({
-    Title = "How to Use",
-    Body  = "Enable the toggles below to activate features. Use the slider to adjust speed.",
-})
-
--- Update dynamically
-Para.SetTitle("Updated Title")
-Para.SetBody("New body content here.")
-```
-
-| Option | Type   | Description           |
-|--------|--------|-----------------------|
-| Title  | string | Bold header text      |
-| Body   | string | Wrapped body text     |
-
----
-
-### `AddButton`
-
-A clickable button with an optional description line.
+Adds a clickable button.
 
 ```lua
 Tab:AddButton({
-    Name        = "Teleport to Spawn",
-    Description = "Moves your character to the spawn point",  -- optional
-    Callback    = function()
-        game.Players.LocalPlayer.Character:MoveTo(Vector3.new(0, 5, 0))
-    end,
-})
-```
-
-| Option      | Type     | Description                   |
-|-------------|----------|-------------------------------|
-| Name        | string   | Button label                  |
-| Description | string   | Small subtitle text (optional)|
-| Callback    | function | Called on click               |
-
----
-
-### `AddToggle`
-
-An on/off switch with a smooth pill animation.
-
-```lua
-local SpeedToggle = Tab:AddToggle({
-    Name        = "Speed Hack",
-    Description = "Increases walk speed",  -- optional
-    Default     = false,
-    Callback    = function(state)
-        -- state is true or false
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = state and 50 or 16
-    end,
-})
-
--- Control programmatically
-SpeedToggle.Set(true)
-print(SpeedToggle.Get())  -- true
-```
-
-| Option      | Type     | Description                         |
-|-------------|----------|-------------------------------------|
-| Name        | string   | Toggle label                        |
-| Description | string   | Subtitle text (optional)            |
-| Default     | boolean  | Initial state (default: `false`)    |
-| Callback    | function | `function(state: boolean)`          |
-
-**Returned object:**
-
-| Method      | Description                  |
-|-------------|------------------------------|
-| `Set(bool)` | Sets toggle state            |
-| `Get()`     | Returns current state        |
-
-> Value is also stored in `Library.Flags["Name"]`.
-
----
-
-### `AddSlider`
-
-A draggable slider for numeric values. Supports integer and decimal modes.
-
-```lua
-local SpeedSlider = Tab:AddSlider({
-    Name     = "Walk Speed",
-    Min      = 16,
-    Max      = 200,
-    Default  = 16,
-    Suffix   = " studs",    -- optional unit label
-    Integer  = true,        -- true = whole numbers, false = decimals
-    Callback = function(value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
-    end,
-})
-
--- Control programmatically
-SpeedSlider.Set(50)
-print(SpeedSlider.Get())  -- 50
-```
-
-| Option   | Type     | Description                              |
-|----------|----------|------------------------------------------|
-| Name     | string   | Slider label                             |
-| Min      | number   | Minimum value                            |
-| Max      | number   | Maximum value                            |
-| Default  | number   | Starting value (default: Min)            |
-| Suffix   | string   | Unit text shown after value (optional)   |
-| Integer  | boolean  | `true` for whole numbers (default: true) |
-| Callback | function | `function(value: number)`                |
-
----
-
-### `AddDropdown`
-
-A single-select dropdown menu.
-
-```lua
-local TeamDrop = Tab:AddDropdown({
-    Name    = "Team",
-    Options = { "Red", "Blue", "Green", "Yellow" },
-    Default = "Red",
-    Callback = function(selected)
-        print("Selected team:", selected)
-    end,
-})
-
--- Control programmatically
-TeamDrop.Set("Blue")
-print(TeamDrop.Get())  -- "Blue"
-```
-
-| Option   | Type     | Description                          |
-|----------|----------|--------------------------------------|
-| Name     | string   | Dropdown label                       |
-| Options  | table    | Array of option strings              |
-| Default  | string   | Initially selected value (optional)  |
-| Callback | function | `function(selected: string)`         |
-
----
-
-### `AddMultiDropdown`
-
-A multi-select dropdown. Returns a dictionary of selected values.
-
-```lua
-local Features = Tab:AddMultiDropdown({
-    Name    = "Active Features",
-    Options = { "ESP", "Aimbot", "Speedhack", "Noclip" },
-    Default = { "ESP" },  -- pre-selected options (optional)
-    Callback = function(selected)
-        -- selected is a dict: { ESP = true, Speedhack = true }
-        for feature, _ in pairs(selected) do
-            print("Active:", feature)
-        end
-    end,
-})
-
--- Get all selected
-local sel = Features.Get()
-print(sel["ESP"])  -- true or nil
-
--- Set selected (replaces current selection)
-Features.Set({ "ESP", "Noclip" })
-```
-
-| Option   | Type     | Description                                    |
-|----------|----------|------------------------------------------------|
-| Name     | string   | Dropdown label                                 |
-| Options  | table    | Array of option strings                        |
-| Default  | table    | Array of pre-selected option strings           |
-| Callback | function | `function(selected: {[string]: true})`         |
-
----
-
-### `AddTextBox`
-
-A text input field with placeholder support.
-
-```lua
-local PlayerInput = Tab:AddTextBox({
-    Name          = "Target Player",
-    Placeholder   = "Enter username...",
-    Default       = "",
-    ClearOnFocus  = true,  -- clears text when clicked (default: true)
-    Callback      = function(text, pressedEnter)
-        -- text: current value
-        -- pressedEnter: true if user pressed Enter
-        if pressedEnter then
-            print("Searching for:", text)
-        end
-    end,
-})
-
-PlayerInput.Set("xynn")
-print(PlayerInput.Get())  -- "xynn"
-```
-
-| Option       | Type     | Description                               |
-|--------------|----------|-------------------------------------------|
-| Name         | string   | Label above the input                     |
-| Placeholder  | string   | Grayed placeholder text                   |
-| Default      | string   | Initial text value (optional)             |
-| ClearOnFocus | boolean  | Clear text on focus (default: `true`)     |
-| Callback     | function | `function(text: string, enter: boolean)`  |
-
----
-
-### `AddKeybind`
-
-A keyboard binding widget. Click to listen, press any key to bind it. The callback fires every time the bound key is pressed in-game.
-
-```lua
-local MenuBind = Tab:AddKeybind({
-    Name    = "Open Menu",
-    Default = Enum.KeyCode.RightShift,
+    Name = "Teleport to Spawn",
     Callback = function()
-        -- fires every time the bound key is pressed
-        print("Menu key pressed!")
-    end,
+        -- your code here
+        print("Button clicked!")
+    end
 })
-
--- Change key programmatically
-MenuBind.Set(Enum.KeyCode.F4)
-print(MenuBind.Get().Name)  -- "F4"
 ```
 
-| Option   | Type          | Description                                     |
-|----------|---------------|-------------------------------------------------|
-| Name     | string        | Label for the keybind row                       |
-| Default  | Enum.KeyCode  | Initially bound key (default: Unknown = "None") |
-| Callback | function      | Called every time the bound key is pressed      |
+| Parameter  | Type       | Description                        |
+|------------|------------|------------------------------------|
+| `Name`     | `string`   | Label shown on the button          |
+| `Callback` | `function` | Function called when button is clicked |
 
 ---
 
-### `AddColorPicker`
+## ✅ AddToggle
 
-An HSV color picker with saturation/value square, hue slider, and hex input.
+Adds an on/off toggle switch.
 
 ```lua
-local EspColor = Tab:AddColorPicker({
-    Name    = "ESP Color",
-    Default = Color3.fromRGB(255, 80, 80),
-    Callback = function(color)
-        -- color is a Color3
-        print("R:", math.floor(color.R * 255))
-    end,
+Tab:AddToggle({
+    Name = "Silent Aim",
+    Default = false,
+    Callback = function(State)
+        print("Silent Aim:", State)
+    end
 })
-
--- Control programmatically
-EspColor.Set(Color3.fromRGB(0, 200, 100))
-local current = EspColor.Get()  -- Color3
 ```
 
-| Option   | Type     | Description                      |
-|----------|----------|----------------------------------|
-| Name     | string   | Label for the picker row         |
-| Default  | Color3   | Initial color (default: red)     |
-| Callback | function | `function(color: Color3)`        |
+| Parameter  | Type       | Description                          |
+|------------|------------|--------------------------------------|
+| `Name`     | `string`   | Label shown on the toggle            |
+| `Default`  | `boolean`  | Initial state (`true` = on)          |
+| `Callback` | `function` | Called with `true`/`false` on change |
 
-**How to use the picker:**
-1. Click the colored swatch to open the picker panel.
-2. Drag inside the **square** to adjust Saturation (X) and Value (Y).
-3. Drag the **rainbow bar** to change Hue.
-4. Type a **hex code** (e.g. `#FF5050`) and press Enter to jump to that color.
-5. Click anywhere outside to close.
+> **Access value anytime:**
+> ```lua
+> print(Library.Flags["Silent Aim"]) -- true or false
+> ```
 
 ---
 
-### `AddProgressBar`
+## 🎚️ AddSlider
 
-A read-only progress bar display. Useful for showing loading, health, cooldowns, etc.
+Adds a draggable slider for numeric values. Supports **mouse and touch (mobile)**.
 
 ```lua
-local HealthBar = Tab:AddProgressBar({
-    Name    = "Player Health",
-    Default = 100,  -- starting percent (0–100)
+Tab:AddSlider({
+    Name = "Walk Speed",
+    Min = 0,
+    Max = 100,
+    Default = 16,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
 })
-
--- Update over time
-game:GetService("RunService").Heartbeat:Connect(function()
-    local hp  = game.Players.LocalPlayer.Character.Humanoid.Health
-    local max = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
-    HealthBar.Set((hp / max) * 100)
-end)
-
-print(HealthBar.Get())  -- current percent value
 ```
 
-| Option  | Type   | Description                         |
-|---------|--------|-------------------------------------|
-| Name    | string | Label above the bar                 |
-| Default | number | Starting percent value (0–100)      |
+| Parameter  | Type       | Description                          |
+|------------|------------|--------------------------------------|
+| `Name`     | `string`   | Label shown above the slider         |
+| `Min`      | `number`   | Minimum value                        |
+| `Max`      | `number`   | Maximum value                        |
+| `Default`  | `number`   | Starting value                       |
+| `Callback` | `function` | Called with current value on drag    |
+
+> **Access value anytime:**
+> ```lua
+> print(Library.Flags["Walk Speed"]) -- number
+> ```
 
 ---
 
-## Utilities
+## 🔽 AddDropdown
 
-### `Notify`
+Adds a single-select dropdown menu.
 
-Sends a toast notification in the bottom-right corner with a progress timer.
+```lua
+Tab:AddDropdown({
+    Name = "Team",
+    Options = {"Red", "Blue", "Green"},
+    Default = "Blue",
+    Callback = function(Selected)
+        print("Selected team:", Selected)
+    end
+})
+```
+
+| Parameter  | Type       | Description                            |
+|------------|------------|----------------------------------------|
+| `Name`     | `string`   | Label shown on the dropdown button     |
+| `Options`  | `table`    | List of selectable options             |
+| `Default`  | `string`   | Pre-selected option (optional)         |
+| `Callback` | `function` | Called with selected option string     |
+
+> **Access value anytime:**
+> ```lua
+> print(Library.Flags["Team"]) -- "Red" / "Blue" / "Green"
+> ```
+
+---
+
+## 🔽🔽 AddMultiDropdown
+
+Adds a multi-select dropdown (select multiple options at once).
+
+```lua
+Tab:AddMultiDropdown({
+    Name = "Effects",
+    Options = {"Blur", "Bloom", "Vignette"},
+    Default = {"Blur", "Bloom"},
+    Callback = function(Selected)
+        -- Selected is a table of chosen options
+        for _, v in ipairs(Selected) do
+            print("Active:", v)
+        end
+    end
+})
+```
+
+| Parameter  | Type       | Description                               |
+|------------|------------|-------------------------------------------|
+| `Name`     | `string`   | Label shown on the dropdown button        |
+| `Options`  | `table`    | List of selectable options                |
+| `Default`  | `table`    | Pre-selected options (optional)           |
+| `Callback` | `function` | Called with table of all selected options |
+
+> **Access value anytime:**
+> ```lua
+> print(Library.Flags["Effects"]) -- {"Blur", "Bloom"}
+> ```
+
+---
+
+## 🔔 Notify
+
+Shows a pop-up notification in the bottom-right corner.
 
 ```lua
 Library:Notify({
-    Title       = "Success",
-    Description = "Speed hack has been enabled.",
-    Type        = "Success",   -- "Default" | "Success" | "Error" | "Warning" | "Info"
-    Duration    = 4.5,         -- seconds before auto-dismiss (default: 4.5)
+    Title = "Script Loaded",
+    Description = "Xynn Hub has been injected successfully!",
+    Duration = 4.5
 })
 ```
 
-| Option      | Type   | Default     | Description                            |
-|-------------|--------|-------------|----------------------------------------|
-| Title       | string | `"Notification"` | Bold notification title           |
-| Description | string | `""`        | Body text (supports wrapping)          |
-| Type        | string | `"Default"` | Controls icon + accent color           |
-| Duration    | number | `4.5`       | Auto-dismiss time in seconds           |
-
-**Notification Types:**
-
-| Type      | Icon | Color        |
-|-----------|------|--------------|
-| `Default` | ●    | Accent blue  |
-| `Success` | ✓    | Green        |
-| `Error`   | ✕    | Red          |
-| `Warning` | !    | Yellow       |
-| `Info`    | i    | Light blue   |
+| Parameter     | Type     | Description                          |
+|---------------|----------|--------------------------------------|
+| `Title`       | `string` | Bold title of the notification       |
+| `Description` | `string` | Subtitle / body text                 |
+| `Duration`    | `number` | How long (seconds) before it fades   |
 
 ---
 
-### `Watermark`
+## 🗑️ Destroy
 
-Adds a persistent watermark label in the top-left corner.
-
-```lua
-local WM = Library:Watermark({
-    Name = "XynnHub",    -- shown in accent color
-    Info = "v2.0",       -- shown in muted color after separator
-})
-
--- Update the info text (e.g. fps counter)
-game:GetService("RunService").Heartbeat:Connect(function()
-    WM.SetInfo(math.floor(1 / game:GetService("RunService").Heartbeat:Wait()) .. " FPS")
-end)
-
-WM.SetVisible(false)  -- hide watermark
-WM.SetName("MyHub")   -- change name text
-```
-
-| Option | Type   | Description                        |
-|--------|--------|------------------------------------|
-| Name   | string | Accent-colored left text           |
-| Info   | string | Muted right text after `" | "`     |
-
-**Returned object:**
-
-| Method           | Description               |
-|------------------|---------------------------|
-| `SetInfo(text)`  | Updates the right text    |
-| `SetName(text)`  | Updates the left text     |
-| `SetVisible(bool)` | Shows/hides watermark   |
-
----
-
-### `LoadingScreen`
-
-Shows a full-screen loading overlay before the main UI. Call **before** `CreateWindow` or immediately after.
-
-```lua
-local Loader = Library:LoadingScreen({
-    Title    = "XynnHub",
-    Subtitle = "Loading scripts...",
-    Duration = 3,   -- used when no Steps provided
-})
-
--- Or use custom steps:
-Library:LoadingScreen({
-    Title = "XynnHub",
-    Steps = {
-        { Text = "Initializing...",      Duration = 0.8 },
-        { Text = "Loading modules...",   Duration = 0.8 },
-        { Text = "Applying patches...",  Duration = 0.8 },
-        { Text = "Ready!",               Duration = 0.4 },
-    },
-})
-
--- Manually dismiss early:
-Loader.Finish()
-```
-
-| Option   | Type   | Description                                    |
-|----------|--------|------------------------------------------------|
-| Title    | string | Large title text                               |
-| Subtitle | string | Subtitle / status line                         |
-| Duration | number | Auto-complete time (when no Steps)             |
-| Steps    | table  | Array of `{Text, Duration}` for stepped loading|
-
----
-
-### `Destroy`
-
-Fully destroys the UI, disconnects all connections, and removes the ScreenGui.
+Destroys all connections and removes the GUI.
 
 ```lua
 Library:Destroy()
 ```
 
-> The **Close button (✕)** on the window calls this automatically.
+---
+
+## 📱 Mobile Support
+
+Xynn Hub automatically detects mobile devices and applies a **scale factor of `0.78`** to all UI elements. Sliders, floating button dragging, and all controls are fully **touch-compatible**.
 
 ---
 
-## Library.Flags
-
-Every interactive element writes its current value to `Library.Flags[Name]`. Use this for polling values from anywhere in your script without needing to store return objects.
+## 🏁 Full Example
 
 ```lua
--- After the user changes a toggle:
-print(Library.Flags["Speed Hack"])   -- true or false
+local Library = loadstring(game:HttpGet("YOUR_RAW_URL"))()
 
--- After slider change:
-print(Library.Flags["Walk Speed"])   -- 50
-
--- After dropdown change:
-print(Library.Flags["Team"])         -- "Blue"
-
--- After multi-dropdown change:
-print(Library.Flags["Active Features"]["ESP"])  -- true or nil
-
--- After color picker change:
-print(Library.Flags["ESP Color"])    -- Color3
-
--- After keybind change:
-print(Library.Flags["Open Menu"])    -- Enum.KeyCode.RightShift
-```
-
----
-
-## Themes Reference
-
-Five built-in themes. Pass the name to `SetTheme` or `CreateWindow { Theme = ... }`.
-
-| Theme      | Background    | Vibe                            |
-|------------|---------------|---------------------------------|
-| `Dark`     | `#141414`     | Classic dark, neutral grays     |
-| `Midnight` | `#0A0A12`     | Deep dark blue-purple           |
-| `Light`    | `#EBEBEB`     | Clean light mode                |
-| `Ocean`    | `#08141F`     | Deep sea blue-teal              |
-| `Rose`     | `#160C12`     | Dark rose/burgundy              |
-
----
-
-## Full Example
-
-```lua
-local Library = loadstring(game:HttpGet("YOUR_RAW_URL_HERE"))()
-
--- Loading screen
-Library:LoadingScreen({
-    Title = "MyHub",
-    Steps = {
-        { Text = "Loading modules...",  Duration = 0.7 },
-        { Text = "Fetching scripts...", Duration = 0.7 },
-        { Text = "All done!",           Duration = 0.4 },
-    },
-})
-
--- Configure
-Library:SetTheme("Midnight")
-Library:SetAccentColor(Color3.fromRGB(130, 80, 255))
-
--- Create window
 local Window = Library:CreateWindow({
-    Title    = "MyHub",
-    Subtitle = "v2.0 | Undetected",
+    Title = "Xynn Hub",
+    AccentColor = Color3.fromRGB(0, 170, 255)
 })
 
--- Toggle key
-Window:SetToggleKey(Enum.KeyCode.RightShift)
+local Tab = Window:AddTab("Main")
 
--- Watermark
-local WM = Library:Watermark({ Name = "MyHub", Info = "v2.0" })
+Tab:AddSection("Player")
 
--- Tab: Main
-local Main = Window:AddTab("Main", "⚙")
-
-Main:AddSection("Player")
-
-Main:AddToggle({
-    Name    = "Infinite Jump",
+Tab:AddToggle({
+    Name = "God Mode",
     Default = false,
-    Callback = function(state)
-        Library:Notify({ Title = state and "Enabled" or "Disabled", Description = "Infinite Jump", Type = state and "Success" or "Warning" })
-    end,
+    Callback = function(State)
+        print("God Mode:", State)
+    end
 })
 
-Main:AddSlider({
-    Name     = "Walk Speed",
-    Min      = 16,
-    Max      = 200,
-    Default  = 16,
-    Suffix   = " stud/s",
+Tab:AddSlider({
+    Name = "Walk Speed",
+    Min = 16,
+    Max = 250,
+    Default = 16,
     Callback = function(v)
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
-    end,
+    end
 })
 
-Main:AddColorPicker({
-    Name    = "Chat Color",
-    Default = Color3.fromRGB(0, 170, 255),
-    Callback = function(color)
-        print("Chat color changed to", color)
-    end,
+Tab:AddDivider("Visuals")
+
+Tab:AddDropdown({
+    Name = "ESP Color",
+    Options = {"Red", "White", "Green"},
+    Default = "White",
+    Callback = function(v)
+        print("ESP Color:", v)
+    end
 })
 
--- Tab: ESP
-local ESP = Window:AddTab("ESP", "👁")
-
-ESP:AddToggle({ Name = "ESP Enabled", Default = false, Callback = function(s) print("ESP:", s) end })
-ESP:AddMultiDropdown({
-    Name    = "Show",
-    Options = { "Name", "Health", "Distance", "Box" },
-    Default = { "Name", "Health" },
-    Callback = function(sel) print("ESP options updated") end,
+Tab:AddButton({
+    Name = "Rejoin Server",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId)
+    end
 })
 
--- Tab: Settings
-local Settings = Window:AddTab("Settings", "⚙")
-Settings:AddDropdown({
-    Name    = "Theme",
-    Options = { "Dark", "Midnight", "Light", "Ocean", "Rose" },
-    Default = "Midnight",
-    Callback = function(theme) Library:SetTheme(theme) end,
-})
-Settings:AddKeybind({
-    Name    = "Toggle Menu",
-    Default = Enum.KeyCode.RightShift,
-    Callback = function() print("Toggle!") end,
-})
-Settings:AddTextBox({
-    Name        = "Custom Title",
-    Placeholder = "Enter new title...",
-    Callback    = function(text, enter) if enter then print("Title set to:", text) end end,
+Library:Notify({
+    Title = "Xynn Hub",
+    Description = "Loaded successfully!",
+    Duration = 4
 })
 ```
 
 ---
 
-<div align="center">
+## 📌 Library.Flags
 
-Made with ❤️ by **XynnHub**  
-*Feel free to fork, modify, and use in your own projects.*
+All toggle, slider, and dropdown values are stored globally in `Library.Flags` by their `Name`.
 
-</div>
+```lua
+-- Access anywhere in your script:
+Library.Flags["Silent Aim"]   -- boolean
+Library.Flags["Walk Speed"]   -- number
+Library.Flags["Team"]         -- string
+Library.Flags["Effects"]      -- table
+```
+
+---
+
+*Made with ❤️ — Xynn Hub UI Library*
