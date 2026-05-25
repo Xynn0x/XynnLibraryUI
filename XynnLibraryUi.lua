@@ -124,7 +124,7 @@ function Library:CreateWindow(Settings)
     local Title = Create("TextLabel", {
         Parent = Header,
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 0 * ScaleFactor, 0, 0),
+        Position = UDim2.new(0, 20 * ScaleFactor, 0, 0),
         Size = UDim2.new(1, -160 * ScaleFactor, 1, 0),
         Text = Settings.Title or "Xynn Hub",
         Font = Enum.Font.GothamBold,
