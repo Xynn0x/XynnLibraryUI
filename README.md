@@ -6,9 +6,6 @@
 ![Platform](https://img.shields.io/badge/platform-Roblox-red?style=for-the-badge)
 ![Mobile](https://img.shields.io/badge/mobile-supported-green?style=for-the-badge)
 
-**A modern, feature-rich UI library for Roblox exploit scripts.**  
-Supports dark/light themes, mobile scaling, ColorPicker, Keybind, MultiDropdown, and more.
-
 </div>
 
 ---
