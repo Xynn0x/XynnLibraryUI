@@ -593,7 +593,7 @@ function Library:CreateWindow(Settings)
             })
 
             local DropList = Create("ScrollingFrame", {
-                Parent = ScreenGui,
+                Parent = Page,
                 Size = UDim2.new(0, 0, 0, 0),
                 Position = UDim2.new(0, 0, 0, 0),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
@@ -602,6 +602,7 @@ function Library:CreateWindow(Settings)
                 ScrollBarThickness = 4,
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
                 CanvasSize = UDim2.new(0,0,0,0),
+                ClipsDescendants = true,
                 ScrollingDirection = Enum.ScrollingDirection.Y
             })
 
@@ -648,6 +649,8 @@ function Library:CreateWindow(Settings)
                     TextColor3 = Color3.fromRGB(200,200,200),
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
+                    OptionBtn.ZIndex = 201
+                    Check.ZIndex = 202
                     TextXAlignment = Enum.TextXAlignment.Left,
                     ZIndex = 201
                 })
@@ -745,7 +748,7 @@ function Library:CreateWindow(Settings)
 
             -- ================= DROPDOWN (SCROLL FIXED) =================
             local DropList = Create("ScrollingFrame", {
-                Parent = ScreenGui,
+                Parent = Page,
                 Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 200 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 Visible = false,
@@ -753,6 +756,7 @@ function Library:CreateWindow(Settings)
                 ScrollingDirection = Enum.ScrollingDirection.Y,
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
                 CanvasSize = UDim2.new(0,0,0,0),
+                ClipsDescendants = true,
                 BorderSizePixel = 0,
                 ZIndex = 200
             })
@@ -812,6 +816,8 @@ function Library:CreateWindow(Settings)
                     Size = UDim2.new(1,0,0,30 * ScaleFactor),
                     BackgroundTransparency = 1,
                     Text = "",
+                    OptionBtn.ZIndex = 201
+                    Check.ZIndex = 202
                     AutoButtonColor = false
                 })
 
