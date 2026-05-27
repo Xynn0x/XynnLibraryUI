@@ -592,23 +592,13 @@ function Library:CreateWindow(Settings)
                 TextSize = 16 * ScaleFactor
             })
 
-            local DropList = Create("ScrollingFrame", {
+            local DropList = Create("Frame", {
                 Parent = ScreenGui,
                 Size = UDim2.new(0, 0, 0, 0),
                 Position = UDim2.new(0, 0, 0, 0),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 Visible = false,
-                ZIndex = 200,
-                ScrollBarThickness = 4,
-                AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                CanvasSize = UDim2.new(0,0,0,0),
-                ScrollingDirection = Enum.ScrollingDirection.Y
-            })
-
-            local Layout = Create("UIListLayout", {
-                Parent = DropList,
-                Padding = UDim.new(0, 2),
-                SortOrder = Enum.SortOrder.LayoutOrder
+                ZIndex = 200
             })
             Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0, 10)})
             Create("UIStroke", {Parent = DropList, Color = Color3.fromRGB(60,60,60), Thickness = 1})
@@ -623,11 +613,7 @@ function Library:CreateWindow(Settings)
             local function OpenDropdown()
                 UpdatePosition()
                 DropList.Visible = true
-                local maxHeight = 180
-                local targetHeight = math.min(#Data.Options * 32 + 10, maxHeight)
-                Tween(DropList, 0.25, {
-                    Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, targetHeight)
-                })
+                Tween(DropList, 0.25, {Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, #Data.Options * 32 + 10)})
             end
 
             local function CloseDropdown()
@@ -754,15 +740,14 @@ function Library:CreateWindow(Settings)
                 ZIndex = 51
             })
 
-            local DropList = Create("ScrollingFrame", {
+            local DropList = Create("Frame", {
                 Parent = ScreenGui,
                 Size = UDim2.new(0,0,0,0),
                 Position = UDim2.new(0,0,0,0),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
+                BorderSizePixel = 0,
                 Visible = false,
-                ScrollBarThickness = 4,
-                AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                ScrollingDirection = Enum.ScrollingDirection.Y,
+                ClipsDescendants = true,
                 ZIndex = 200
             })
 
@@ -801,7 +786,12 @@ function Library:CreateWindow(Settings)
             local function OpenDropdown()
                 UpdatePosition()
 
-                DropList.Size = UDim2.new( 0, Dropdown.AbsoluteSize.X, 0, 0 )
+                DropList.Size = UDim2.new(
+                    0,
+                    Dropdown.AbsoluteSize.X,
+                    0,
+                    0
+                )
 
                 DropList.Visible = true
                 Opened = true
