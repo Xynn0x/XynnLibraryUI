@@ -649,8 +649,6 @@ function Library:CreateWindow(Settings)
                     TextColor3 = Color3.fromRGB(200,200,200),
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
-                    OptionBtn.ZIndex = 201
-                    Check.ZIndex = 202
                     TextXAlignment = Enum.TextXAlignment.Left,
                     ZIndex = 201
                 })
@@ -816,8 +814,6 @@ function Library:CreateWindow(Settings)
                     Size = UDim2.new(1,0,0,30 * ScaleFactor),
                     BackgroundTransparency = 1,
                     Text = "",
-                    OptionBtn.ZIndex = 201
-                    Check.ZIndex = 202
                     AutoButtonColor = false
                 })
 
