@@ -649,6 +649,8 @@ function Library:CreateWindow(Settings)
                     TextColor3 = Color3.fromRGB(200,200,200),
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
+                    OptionBtn.ZIndex = 201,
+                    Check.ZIndex = 202,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     ZIndex = 201
                 })
