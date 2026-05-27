@@ -593,7 +593,7 @@ function Library:CreateWindow(Settings)
             })
 
             local DropList = Create("ScrollingFrame", {
-                Parent = Page,
+                Parent = ScreenGui,
                 Size = UDim2.new(0, 0, 0, 0),
                 Position = UDim2.new(0, 0, 0, 0),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
@@ -745,7 +745,7 @@ function Library:CreateWindow(Settings)
 
             -- ================= DROPDOWN (SCROLL FIXED) =================
             local DropList = Create("ScrollingFrame", {
-                Parent = Page,
+                Parent = ScreenGui,
                 Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 200 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 Visible = false,
@@ -834,6 +834,7 @@ function Library:CreateWindow(Settings)
                     Position = UDim2.new(0,35,0,0),
                     Size = UDim2.new(1,-40,1,0),
                     Text = tostring(option),
+                    ZIndex = 202,
                     Font = Enum.Font.Gotham,
                     TextColor3 = Color3.fromRGB(220,220,220),
                     TextSize = 14 * ScaleFactor,
