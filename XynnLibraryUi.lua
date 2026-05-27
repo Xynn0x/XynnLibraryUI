@@ -695,11 +695,13 @@ function Library:CreateWindow(Settings)
 
             local function GetSelectedList()
                 local List = {}
+
                 for _, option in ipairs(Data.Options) do
                     if Selected[option] then
                         table.insert(List, option)
                     end
                 end
+
                 return List
             end
 
@@ -717,20 +719,28 @@ function Library:CreateWindow(Settings)
 
             Library.Flags[Data.Name] = GetSelectedList()
 
-            -- ================= UI BUTTON =================
             local Dropdown = Create("TextButton", {
                 Parent = Page,
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 48 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "   " .. UpdateDisplayText(),
-                Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
+                Font = Enum.Font.GothamSemibold,
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 50
             })
 
-            Create("UICorner", {Parent = Dropdown, CornerRadius = UDim.new(0,12 * ScaleFactor)})
-            Create("UIStroke", {Parent = Dropdown, Color = Color3.fromRGB(50,50,50), Thickness = 1})
+            Create("UICorner", {
+                Parent = Dropdown,
+                CornerRadius = UDim.new(0,12 * ScaleFactor)
+            })
+
+            Create("UIStroke", {
+                Parent = Dropdown,
+                Color = Color3.fromRGB(50,50,50),
+                Thickness = 1
+            })
 
             local Arrow = Create("TextLabel", {
                 Parent = Dropdown,
@@ -740,31 +750,42 @@ function Library:CreateWindow(Settings)
                 Text = "▼",
                 Font = Enum.Font.GothamBold,
                 TextColor3 = Color3.fromRGB(180,180,180),
-                TextSize = 16 * ScaleFactor
+                TextSize = 16 * ScaleFactor,
+                ZIndex = 51
             })
 
-            -- ================= DROPDOWN (SCROLL FIXED) =================
             local DropList = Create("ScrollingFrame", {
                 Parent = ScreenGui,
-                Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 200 * ScaleFactor),
+                Size = UDim2.new(0,0,0,0),
+                Position = UDim2.new(0,0,0,0),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 Visible = false,
                 ScrollBarThickness = 4,
-                ScrollingDirection = Enum.ScrollingDirection.Y,
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                CanvasSize = UDim2.new(0,0,0,0),
-                BorderSizePixel = 0,
+                ScrollingDirection = Enum.ScrollingDirection.Y,
                 ZIndex = 200
             })
 
-            Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0,10)})
-            Create("UIStroke", {Parent = DropList, Color = Color3.fromRGB(60,60,60), Thickness = 1})
+            Create("UICorner", {
+                Parent = DropList,
+                CornerRadius = UDim.new(0,10)
+            })
+
+            Create("UIStroke", {
+                Parent = DropList,
+                Color = Color3.fromRGB(60,60,60),
+                Thickness = 1
+            })
 
             local Layout = Create("UIListLayout", {
                 Parent = DropList,
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
+
+            local function GetHeight()
+                return Layout.AbsoluteContentSize.Y + 6
+            end
 
             local function UpdatePosition()
                 DropList.Position = UDim2.new(
@@ -775,26 +796,43 @@ function Library:CreateWindow(Settings)
                 )
             end
 
-            -- auto follow UI kalau geser
-            game:GetService("RunService").RenderStepped:Connect(function()
-                if DropList.Visible then
-                    UpdatePosition()
-                end
-            end)
-
             local Opened = false
 
             local function OpenDropdown()
                 UpdatePosition()
+
+                DropList.Size = UDim2.new( 0, Dropdown.AbsoluteSize.X, 0, 0 )
+
                 DropList.Visible = true
                 Opened = true
                 Arrow.Text = "▲"
+
+                Tween(DropList,0.25,{
+                    Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        GetHeight()
+                    )
+                })
             end
 
             local function CloseDropdown()
-                DropList.Visible = false
                 Opened = false
                 Arrow.Text = "▼"
+
+                Tween(DropList,0.2,{
+                    Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        0
+                    )
+                })
+
+                task.delay(0.2,function()
+                    DropList.Visible = false
+                end)
             end
 
             Dropdown.MouseButton1Click:Connect(function()
@@ -805,29 +843,34 @@ function Library:CreateWindow(Settings)
                 end
             end)
 
-            -- ================= OPTIONS =================
             for _, option in ipairs(Data.Options) do
+
                 local OptionBtn = Create("TextButton", {
                     Parent = DropList,
-                    Size = UDim2.new(1,0,0,30 * ScaleFactor),
+                    Size = UDim2.new(1,0,0,30),
                     BackgroundTransparency = 1,
                     Text = "",
                     AutoButtonColor = false,
-                    OptionBtn.ZIndex = 201                })
+                    ZIndex = 201
+                })
 
                 local Check = Create("Frame", {
                     Parent = OptionBtn,
                     Size = UDim2.new(0,18,0,18),
-                    Check.ZIndex = 202,
                     Position = UDim2.new(0,8,0.5,-9),
                     BackgroundColor3 = Selected[option]
                         and Library.AccentColor
-                        or Color3.fromRGB(55,55,55)
+                        or Color3.fromRGB(55,55,55),
+                    BorderSizePixel = 0,
+                    ZIndex = 202
                 })
 
-                Create("UICorner", {Parent = Check, CornerRadius = UDim.new(0,4)})
+                Create("UICorner", {
+                    Parent = Check,
+                    CornerRadius = UDim.new(0,4)
+                })
 
-                Create("TextLabel", {
+                local TextLabel = Create("TextLabel", {
                     Parent = OptionBtn,
                     BackgroundTransparency = 1,
                     Position = UDim2.new(0,35,0,0),
@@ -835,11 +878,25 @@ function Library:CreateWindow(Settings)
                     Text = tostring(option),
                     Font = Enum.Font.Gotham,
                     TextColor3 = Color3.fromRGB(220,220,220),
-                    TextSize = 14 * ScaleFactor,
-                    TextXAlignment = Enum.TextXAlignment.Left
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    ZIndex = 202
                 })
 
+                OptionBtn.MouseEnter:Connect(function()
+                    Tween(OptionBtn,0.1,{
+                        BackgroundTransparency = 0.85
+                    })
+                end)
+
+                OptionBtn.MouseLeave:Connect(function()
+                    Tween(OptionBtn,0.1,{
+                        BackgroundTransparency = 1
+                    })
+                end)
+
                 OptionBtn.MouseButton1Click:Connect(function()
+
                     Selected[option] = not Selected[option]
 
                     Tween(Check,0.15,{
@@ -850,6 +907,7 @@ function Library:CreateWindow(Settings)
                     })
 
                     Library.Flags[Data.Name] = GetSelectedList()
+
                     Dropdown.Text = "   " .. UpdateDisplayText()
 
                     if Data.Callback then
@@ -862,6 +920,7 @@ function Library:CreateWindow(Settings)
         end
         return Tab
     end
+
     return Window
 end
 
