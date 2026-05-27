@@ -813,7 +813,8 @@ function Library:CreateWindow(Settings)
                     BackgroundTransparency = 1,
                     Text = "",
                     AutoButtonColor = false,
-                    ZIndex = 201                })
+                    ZIndex = 202  
+                })
 
                 local Check = Create("Frame", {
                     Parent = OptionBtn,
