@@ -813,12 +813,12 @@ function Library:CreateWindow(Settings)
                     BackgroundTransparency = 1,
                     Text = "",
                     AutoButtonColor = false,
-                    OptionBtn.ZIndex = 201                })
+                    ZIndex = 201                })
 
                 local Check = Create("Frame", {
                     Parent = OptionBtn,
                     Size = UDim2.new(0,18,0,18),
-                    Check.ZIndex = 202,
+                    ZIndex = 202,
                     Position = UDim2.new(0,8,0.5,-9),
                     BackgroundColor3 = Selected[option]
                         and Library.AccentColor
