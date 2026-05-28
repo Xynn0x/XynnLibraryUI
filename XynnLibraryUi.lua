@@ -936,7 +936,7 @@ function Library:CreateWindow(Settings)
                 DropList = DropList,
 
                 Refresh = function(_, newOptions)
-                    RebuildOptions(newOptions)
+                    Refresh(newOptions)
                 end
             }
         end
