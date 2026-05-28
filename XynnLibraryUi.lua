@@ -860,7 +860,20 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
-            return Dropdown
+            return {
+                Button = Dropdown,
+                DropList = DropList,
+
+                Destroy = function()
+                    pcall(function()
+                        Dropdown:Destroy()
+                    end)
+
+                    pcall(function()
+                        DropList:Destroy()
+                    end)
+                end
+            }
         end
         return Tab
     end
