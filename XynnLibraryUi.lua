@@ -859,10 +859,81 @@ function Library:CreateWindow(Settings)
                     end
                 end)
             end
+            local function Refresh(newOptions)
+                Data.Options = newOptions
+
+                -- hapus option lama
+                for _, v in ipairs(DropList:GetChildren()) do
+                    if v:IsA("TextButton") then
+                        v:Destroy()
+                    end
+                end
+
+                table.clear(Selected)
+
+                -- buat ulang option
+                for _, option in ipairs(Data.Options) do
+                    local OptionBtn = Create("TextButton", {
+                        Parent = DropList,
+                        Size = UDim2.new(1,0,0,30 * ScaleFactor),
+                        BackgroundTransparency = 1,
+                        Text = "",
+                        AutoButtonColor = false,
+                        ZIndex = 202
+                    })
+
+                    local Check = Create("Frame", {
+                        Parent = OptionBtn,
+                        Size = UDim2.new(0,18,0,18),
+                        ZIndex = 202,
+                        Position = UDim2.new(0,8,0.5,-9),
+                        BackgroundColor3 = Color3.fromRGB(55,55,55)
+                    })
+
+                    Create("UICorner", {
+                        Parent = Check,
+                        CornerRadius = UDim.new(0,4)
+                    })
+
+                    Create("TextLabel", {
+                        Parent = OptionBtn,
+                        BackgroundTransparency = 1,
+                        Position = UDim2.new(0,35,0,0),
+                        Size = UDim2.new(1,-40,1,0),
+                        Text = tostring(option),
+                        ZIndex = 202,
+                        Font = Enum.Font.Gotham,
+                        TextColor3 = Color3.fromRGB(220,220,220),
+                        TextSize = 14 * ScaleFactor,
+                        TextXAlignment = Enum.TextXAlignment.Left
+                    })
+
+                    OptionBtn.MouseButton1Click:Connect(function()
+                        Selected[option] = not Selected[option]
+
+                        Tween(Check,0.15,{
+                            BackgroundColor3 =
+                                Selected[option]
+                                and Library.AccentColor
+                                or Color3.fromRGB(55,55,55)
+                        })
+
+                        Library.Flags[Data.Name] = GetSelectedList()
+                        Dropdown.Text = "   " .. UpdateDisplayText()
+
+                        if Data.Callback then
+                            Data.Callback(GetSelectedList())
+                        end
+                    end)
+                end
+
+                Dropdown.Text = "   " .. UpdateDisplayText()
+            end
 
             return {
                 Button = Dropdown,
                 DropList = DropList,
+                Refresh = Refresh,
 
                 Destroy = function()
                     pcall(function()
