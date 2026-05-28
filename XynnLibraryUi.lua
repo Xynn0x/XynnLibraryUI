@@ -860,7 +860,7 @@ function Library:CreateWindow(Settings)
                 end)
             end
             local function Refresh(newOptions)
-                Data.Options = newOptions
+                 Data.Options = newOptions
 
                 -- hapus option lama
                 for _, v in ipairs(DropList:GetChildren()) do
@@ -869,9 +869,10 @@ function Library:CreateWindow(Settings)
                     end
                 end
 
+                -- reset selected
                 table.clear(Selected)
 
-                -- buat ulang option
+                -- buat option baru
                 for _, option in ipairs(Data.Options) do
                     local OptionBtn = Create("TextButton", {
                         Parent = DropList,
@@ -879,13 +880,13 @@ function Library:CreateWindow(Settings)
                         BackgroundTransparency = 1,
                         Text = "",
                         AutoButtonColor = false,
-                        ZIndex = 203
+                        ZIndex = 202
                     })
 
                     local Check = Create("Frame", {
                         Parent = OptionBtn,
                         Size = UDim2.new(0,18,0,18),
-                        ZIndex = 203,
+                        ZIndex = 202,
                         Position = UDim2.new(0,8,0.5,-9),
                         BackgroundColor3 = Color3.fromRGB(55,55,55)
                     })
@@ -901,7 +902,7 @@ function Library:CreateWindow(Settings)
                         Position = UDim2.new(0,35,0,0),
                         Size = UDim2.new(1,-40,1,0),
                         Text = tostring(option),
-                        ZIndex = 203,
+                        ZIndex = 202,
                         Font = Enum.Font.Gotham,
                         TextColor3 = Color3.fromRGB(220,220,220),
                         TextSize = 14 * ScaleFactor,
@@ -933,16 +934,9 @@ function Library:CreateWindow(Settings)
             return {
                 Button = Dropdown,
                 DropList = DropList,
-                Refresh = Refresh,
 
-                Destroy = function()
-                    pcall(function()
-                        Dropdown:Destroy()
-                    end)
-
-                    pcall(function()
-                        DropList:Destroy()
-                    end)
+                Refresh = function(_, newOptions)
+                    RebuildOptions(newOptions)
                 end
             }
         end
