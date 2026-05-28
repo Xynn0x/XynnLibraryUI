@@ -879,13 +879,13 @@ function Library:CreateWindow(Settings)
                         BackgroundTransparency = 1,
                         Text = "",
                         AutoButtonColor = false,
-                        ZIndex = 202
+                        ZIndex = 203
                     })
 
                     local Check = Create("Frame", {
                         Parent = OptionBtn,
                         Size = UDim2.new(0,18,0,18),
-                        ZIndex = 202,
+                        ZIndex = 203,
                         Position = UDim2.new(0,8,0.5,-9),
                         BackgroundColor3 = Color3.fromRGB(55,55,55)
                     })
@@ -901,7 +901,7 @@ function Library:CreateWindow(Settings)
                         Position = UDim2.new(0,35,0,0),
                         Size = UDim2.new(1,-40,1,0),
                         Text = tostring(option),
-                        ZIndex = 202,
+                        ZIndex = 203,
                         Font = Enum.Font.Gotham,
                         TextColor3 = Color3.fromRGB(220,220,220),
                         TextSize = 14 * ScaleFactor,
