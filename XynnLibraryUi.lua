@@ -769,7 +769,7 @@ function Library:CreateWindow(Settings)
                         0,
                         Layout.AbsoluteContentSize.Y + 5
                     )
-                end).
+                end),
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
