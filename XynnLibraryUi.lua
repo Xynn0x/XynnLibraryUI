@@ -762,6 +762,14 @@ function Library:CreateWindow(Settings)
 
             local Layout = Create("UIListLayout", {
                 Parent = DropList,
+                Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    DropList.CanvasSize = UDim2.new(
+                        0,
+                        0,
+                        0,
+                        Layout.AbsoluteContentSize.Y + 5
+                    )
+                end).
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
@@ -872,16 +880,19 @@ function Library:CreateWindow(Settings)
                 end)
             end
             local function Refresh(newOptions)
-                Data.Options = newOptions
+                Data.Options = newOptions or {}
 
-                -- hapus option lama
-                for _, v in ipairs(DropList:GetChildren()) do
-                    if v:IsA("TextButton") then
-                        v:Destroy()
+                -- reset selected
+                table.clear(Selected)
+
+                -- hapus semua option lama
+                for _, child in ipairs(DropList:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child:Destroy()
                     end
                 end
 
-                table.clear(Selected)
+                task.wait()
 
                 -- buat ulang option
                 for _, option in ipairs(Data.Options) do
@@ -897,9 +908,9 @@ function Library:CreateWindow(Settings)
                     local Check = Create("Frame", {
                         Parent = OptionBtn,
                         Size = UDim2.new(0,18,0,18),
-                        ZIndex = 202,
                         Position = UDim2.new(0,8,0.5,-9),
-                        BackgroundColor3 = Color3.fromRGB(55,55,55)
+                        BackgroundColor3 = Color3.fromRGB(55,55,55),
+                        ZIndex = 202
                     })
 
                     Create("UICorner", {
@@ -913,11 +924,11 @@ function Library:CreateWindow(Settings)
                         Position = UDim2.new(0,35,0,0),
                         Size = UDim2.new(1,-40,1,0),
                         Text = tostring(option),
-                        ZIndex = 202,
                         Font = Enum.Font.Gotham,
                         TextColor3 = Color3.fromRGB(220,220,220),
                         TextSize = 14 * ScaleFactor,
-                        TextXAlignment = Enum.TextXAlignment.Left
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        ZIndex = 202
                     })
 
                     OptionBtn.MouseButton1Click:Connect(function()
@@ -939,7 +950,7 @@ function Library:CreateWindow(Settings)
                     end)
                 end
 
-                Dropdown.Text = "   " .. UpdateDisplayText()
+                -- FORCE canvas refresh
                 task.wait()
 
                 DropList.CanvasSize = UDim2.new(
@@ -948,6 +959,8 @@ function Library:CreateWindow(Settings)
                     0,
                     Layout.AbsoluteContentSize.Y + 5
                 )
+
+                Dropdown.Text = "   " .. UpdateDisplayText()
             end
 
             return {
