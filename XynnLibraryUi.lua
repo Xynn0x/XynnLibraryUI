@@ -762,17 +762,17 @@ function Library:CreateWindow(Settings)
 
             local Layout = Create("UIListLayout", {
                 Parent = DropList,
-                Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    DropList.CanvasSize = UDim2.new(
-                        0,
-                        0,
-                        0,
-                        Layout.AbsoluteContentSize.Y + 5
-                    )
-                end),
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
+            Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                DropList.CanvasSize = UDim2.new(
+                    0,
+                    0,
+                    0,
+                    Layout.AbsoluteContentSize.Y + 5
+                )
+            end)
 
             local function UpdatePosition()
                 DropList.Position = UDim2.new(
@@ -959,6 +959,21 @@ function Library:CreateWindow(Settings)
                     0,
                     Layout.AbsoluteContentSize.Y + 5
                 )
+
+                if Opened then
+                    local newHeight = math.clamp(
+                        Layout.AbsoluteContentSize.Y + 5,
+                        0,
+                        200 * ScaleFactor
+                    )
+
+                    DropList.Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        newHeight
+                    )
+                end
 
                 Dropdown.Text = "   " .. UpdateDisplayText()
             end
