@@ -786,6 +786,18 @@ function Library:CreateWindow(Settings)
 
             local function OpenDropdown()
                 UpdatePosition()
+                local newHeight = math.clamp(
+                        Layout.AbsoluteContentSize.Y + 5,
+                        0,
+                        200 * ScaleFactor
+                    )
+
+                    DropList.Size = UDim2.new(
+                        0,
+                        Dropdown.AbsoluteSize.X,
+                        0,
+                        newHeight
+                    )
                 DropList.Visible = true
                 Opened = true
                 Arrow.Text = "▲"
@@ -860,7 +872,7 @@ function Library:CreateWindow(Settings)
                 end)
             end
             local function Refresh(newOptions)
-                 Data.Options = newOptions
+                Data.Options = newOptions
 
                 -- hapus option lama
                 for _, v in ipairs(DropList:GetChildren()) do
@@ -869,10 +881,9 @@ function Library:CreateWindow(Settings)
                     end
                 end
 
-                -- reset selected
                 table.clear(Selected)
 
-                -- buat option baru
+                -- buat ulang option
                 for _, option in ipairs(Data.Options) do
                     local OptionBtn = Create("TextButton", {
                         Parent = DropList,
@@ -929,14 +940,29 @@ function Library:CreateWindow(Settings)
                 end
 
                 Dropdown.Text = "   " .. UpdateDisplayText()
+                task.wait()
+
+                DropList.CanvasSize = UDim2.new(
+                    0,
+                    0,
+                    0,
+                    Layout.AbsoluteContentSize.Y + 5
+                )
             end
 
             return {
                 Button = Dropdown,
                 DropList = DropList,
+                Refresh = Refresh,
 
-                Refresh = function(_, newOptions)
-                    Refresh(newOptions)
+                Destroy = function()
+                    pcall(function()
+                        Dropdown:Destroy()
+                    end)
+
+                    pcall(function()
+                        DropList:Destroy()
+                    end)
                 end
             }
         end
