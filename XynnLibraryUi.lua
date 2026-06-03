@@ -422,8 +422,8 @@ function Library:CreateWindow(Settings)
             Create("UICorner", {Parent = Btn, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Btn, Color = Color3.fromRGB(50,50,50), Thickness = 1})
 
-            Btn.MouseEnter:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(45,45,45)}) end)
-            Btn.MouseLeave:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(32,32,32)}) end)
+            -- Btn.MouseEnter:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(45,45,45)}) end)
+            -- Btn.MouseLeave:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(32,32,32)}) end)
 
             Btn.MouseButton1Click:Connect(function()
                 if Data.Callback then Data.Callback() end
