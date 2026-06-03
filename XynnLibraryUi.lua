@@ -124,7 +124,7 @@ function Library:CreateWindow(Settings)
     local Title = Create("TextLabel", {
         Parent = Header,
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 15 * ScaleFactor, 0, 0),
+        Position = UDim2.new(0, 60 * ScaleFactor, 0, 0),
         Size = UDim2.new(1, -160 * ScaleFactor, 1, 0),
         Text = Settings.Title or "Xynn Hub",
         Font = Enum.Font.GothamBold,
@@ -138,7 +138,8 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -33 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(232, 17, 35)
+        BackgroundColor3 = Color3.fromRGB(232, 17, 35),
+        AutoButtonColor = false   -- 🛑 matikan efek hover bawaan
     })
     
     local Minimize = Create("TextButton", {
@@ -146,7 +147,8 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -58 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(255, 179, 26)
+        BackgroundColor3 = Color3.fromRGB(255, 179, 26),
+        AutoButtonColor = false   -- 🛑 matikan efek hover bawaan
     })
 
     Create("UICorner", {Parent = Close, CornerRadius = UDim.new(1,0)})
@@ -325,7 +327,8 @@ function Library:CreateWindow(Settings)
             TextColor3 = Color3.fromRGB(190, 190, 190),
             TextSize = 14 * ScaleFactor,
             TextXAlignment = Enum.TextXAlignment.Left,
-            BorderSizePixel = 0
+            BorderSizePixel = 0,
+            AutoButtonColor = false   -- 🛑 matikan hover
         })
         Create("UICorner", {Parent = Button, CornerRadius = UDim.new(0, 10 * ScaleFactor)})
 
@@ -417,13 +420,15 @@ function Library:CreateWindow(Settings)
                 Text = Data.Name,
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
-                TextSize = 14 * ScaleFactor
+                TextSize = 14 * ScaleFactor,
+                AutoButtonColor = false   -- 🛑 matikan hover
             })
             Create("UICorner", {Parent = Btn, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Btn, Color = Color3.fromRGB(50,50,50), Thickness = 1})
 
-            -- Btn.MouseEnter:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(45,45,45)}) end)
-            -- Btn.MouseLeave:Connect(function() Tween(Btn, 0.2, {BackgroundColor3 = Color3.fromRGB(32,32,32)}) end)
+            -- ❌ HAPUS ANIMASI HOVER
+            -- Btn.MouseEnter:Connect(function() ... end)
+            -- Btn.MouseLeave:Connect(function() ... end)
 
             Btn.MouseButton1Click:Connect(function()
                 if Data.Callback then Data.Callback() end
@@ -442,7 +447,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AutoButtonColor = false   -- 🛑 matikan hover
             })
             Create("UICorner", {Parent = Toggle, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Toggle, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -473,6 +479,7 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 58 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "",
+                AutoButtonColor = false   -- 🛑 matikan hover
             })
             Create("UICorner", {Parent = Slider, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Slider, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -555,10 +562,7 @@ function Library:CreateWindow(Settings)
             return Slider
         end
 
-        -- Dropdown tetap sama (sudah cukup bagus)
         function Tab:AddDropdown(Data)
-            -- ... (kode dropdown kamu yang lama, biarkan tetap sama)
-            -- Saya tidak ubah karena sudah cukup stabil
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
                 return
@@ -576,7 +580,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextSize = 14 * ScaleFactor,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                ZIndex = 50
+                ZIndex = 50,
+                AutoButtonColor = false   -- 🛑 matikan hover
             })
             Create("UICorner", {Parent = Dropdown, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Dropdown, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -605,15 +610,14 @@ function Library:CreateWindow(Settings)
                 ScrollingDirection = Enum.ScrollingDirection.Y
             })
 
-            local Layout = Create("UIListLayout", {
+            -- Perbaiki double UIListLayout
+            Create("UIListLayout", {
                 Parent = DropList,
                 Padding = UDim.new(0, 2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
             Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0, 10)})
             Create("UIStroke", {Parent = DropList, Color = Color3.fromRGB(60,60,60), Thickness = 1})
-
-            Create("UIListLayout", {Parent = DropList, Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder})
 
             local function UpdatePosition()
                 DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
@@ -649,7 +653,8 @@ function Library:CreateWindow(Settings)
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    ZIndex = 201
+                    ZIndex = 201,
+                    AutoButtonColor = false   -- 🛑 matikan hover
                 })
 
                 OptionBtn.MouseButton1Click:Connect(function()
@@ -660,12 +665,9 @@ function Library:CreateWindow(Settings)
                     CloseDropdown()
                 end)
 
-                OptionBtn.MouseEnter:Connect(function()
-                    Tween(OptionBtn, 0.1, {BackgroundTransparency = 0.85, TextColor3 = Color3.new(1,1,1)})
-                end)
-                OptionBtn.MouseLeave:Connect(function()
-                    Tween(OptionBtn, 0.1, {BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(200,200,200)})
-                end)
+                -- ❌ HAPUS ANIMASI HOVER PADA OPSI DROPDOWN
+                -- OptionBtn.MouseEnter:Connect(...)
+                -- OptionBtn.MouseLeave:Connect(...)
             end
 
             UserInputService.InputBegan:Connect(function(input)
@@ -679,6 +681,7 @@ function Library:CreateWindow(Settings)
 
             return Dropdown
         end
+
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
@@ -726,7 +729,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AutoButtonColor = false   -- 🛑 matikan hover
             })
 
             Create("UICorner", {Parent = Dropdown, CornerRadius = UDim.new(0,12 * ScaleFactor)})
@@ -765,14 +769,6 @@ function Library:CreateWindow(Settings)
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
-            Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                DropList.CanvasSize = UDim2.new(
-                    0,
-                    0,
-                    0,
-                    Layout.AbsoluteContentSize.Y + 5
-                )
-            end)
 
             local function UpdatePosition()
                 DropList.Position = UDim2.new(
@@ -794,18 +790,6 @@ function Library:CreateWindow(Settings)
 
             local function OpenDropdown()
                 UpdatePosition()
-                local newHeight = math.clamp(
-                        Layout.AbsoluteContentSize.Y + 5,
-                        0,
-                        200 * ScaleFactor
-                    )
-
-                    DropList.Size = UDim2.new(
-                        0,
-                        Dropdown.AbsoluteSize.X,
-                        0,
-                        newHeight
-                    )
                 DropList.Visible = true
                 Opened = true
                 Arrow.Text = "▲"
@@ -879,109 +863,10 @@ function Library:CreateWindow(Settings)
                     end
                 end)
             end
-            local function Refresh(newOptions)
-                Data.Options = newOptions or {}
-
-                -- reset selected
-                table.clear(Selected)
-
-                -- hapus semua option lama
-                for _, child in ipairs(DropList:GetChildren()) do
-                    if child:IsA("TextButton") then
-                        child:Destroy()
-                    end
-                end
-
-                task.wait()
-
-                -- buat ulang option
-                for _, option in ipairs(Data.Options) do
-                    local OptionBtn = Create("TextButton", {
-                        Parent = DropList,
-                        Size = UDim2.new(1,0,0,30 * ScaleFactor),
-                        BackgroundTransparency = 1,
-                        Text = "",
-                        AutoButtonColor = false,
-                        ZIndex = 202
-                    })
-
-                    local Check = Create("Frame", {
-                        Parent = OptionBtn,
-                        Size = UDim2.new(0,18,0,18),
-                        Position = UDim2.new(0,8,0.5,-9),
-                        BackgroundColor3 = Color3.fromRGB(55,55,55),
-                        ZIndex = 202
-                    })
-
-                    Create("UICorner", {
-                        Parent = Check,
-                        CornerRadius = UDim.new(0,4)
-                    })
-
-                    Create("TextLabel", {
-                        Parent = OptionBtn,
-                        BackgroundTransparency = 1,
-                        Position = UDim2.new(0,35,0,0),
-                        Size = UDim2.new(1,-40,1,0),
-                        Text = tostring(option),
-                        Font = Enum.Font.Gotham,
-                        TextColor3 = Color3.fromRGB(220,220,220),
-                        TextSize = 14 * ScaleFactor,
-                        TextXAlignment = Enum.TextXAlignment.Left,
-                        ZIndex = 202
-                    })
-
-                    OptionBtn.MouseButton1Click:Connect(function()
-                        Selected[option] = not Selected[option]
-
-                        Tween(Check,0.15,{
-                            BackgroundColor3 =
-                                Selected[option]
-                                and Library.AccentColor
-                                or Color3.fromRGB(55,55,55)
-                        })
-
-                        Library.Flags[Data.Name] = GetSelectedList()
-                        Dropdown.Text = "   " .. UpdateDisplayText()
-
-                        if Data.Callback then
-                            Data.Callback(GetSelectedList())
-                        end
-                    end)
-                end
-
-                -- FORCE canvas refresh
-                task.wait()
-
-                DropList.CanvasSize = UDim2.new(
-                    0,
-                    0,
-                    0,
-                    Layout.AbsoluteContentSize.Y + 5
-                )
-
-                if Opened then
-                    local newHeight = math.clamp(
-                        Layout.AbsoluteContentSize.Y + 5,
-                        0,
-                        200 * ScaleFactor
-                    )
-
-                    DropList.Size = UDim2.new(
-                        0,
-                        Dropdown.AbsoluteSize.X,
-                        0,
-                        newHeight
-                    )
-                end
-
-                Dropdown.Text = "   " .. UpdateDisplayText()
-            end
 
             return {
                 Button = Dropdown,
                 DropList = DropList,
-                Refresh = Refresh,
 
                 Destroy = function()
                     pcall(function()
