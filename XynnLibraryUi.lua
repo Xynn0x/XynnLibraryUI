@@ -1,3 +1,4 @@
+-- LIBRARY FIXED (tanpa AbsoluteRect)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -6,7 +7,7 @@ local LocalPlayer = Players.LocalPlayer
 local Library = {}
 Library.Flags = {}
 Library.Connections = {}
-Library.AccentColor = Color3.fromRGB(0, 170, 255)  -- Default Accent
+Library.AccentColor = Color3.fromRGB(0, 170, 255)
 
 local function Tween(Object, Time, Properties)
     TweenService:Create(Object, TweenInfo.new(Time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), Properties):Play()
@@ -18,18 +19,16 @@ local function Create(Class, Props)
         Obj[i] = v
     end
     return Obj
-end 
+end
 
--- ==================== AUTO SCALE FOR MOBILE ====================
 local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local ScaleFactor = IsMobile and 0.78 or 1
 
--- ==================== SET ACCENT COLOR ====================
 function Library:SetAccentColor(Color)
     Library.AccentColor = Color
 end
 
--- Fungsi untuk mengecek mouse over GUI (tanpa AbsoluteRect)
+-- Fungsi pengecekan mouse over (tanpa AbsoluteRect)
 local function IsMouseOverGui(guiObject, mousePos)
     if not guiObject or not guiObject.AbsolutePosition then return false end
     local pos = guiObject.AbsolutePosition
@@ -38,7 +37,6 @@ local function IsMouseOverGui(guiObject, mousePos)
            mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
 end
 
--- ==================== NOTIFICATION ====================
 function Library:Notify(Data)
     local Gui = self.ScreenGui
     if not Gui then return end
@@ -96,7 +94,6 @@ function Library:Notify(Data)
     end)
 end
 
--- ==================== CREATE WINDOW ====================
 function Library:CreateWindow(Settings)
     local Window = {}
     local ScreenGui = Create("ScreenGui", {
@@ -112,7 +109,6 @@ function Library:CreateWindow(Settings)
         Library.AccentColor = Settings.AccentColor
     end
 
-    -- ==================== MAIN FRAME ====================
     local Main = Create("Frame", {
         Parent = ScreenGui,
         Size = UDim2.new(0, 650 * ScaleFactor, 0, 420 * ScaleFactor),
@@ -124,7 +120,6 @@ function Library:CreateWindow(Settings)
     Create("UICorner", {Parent = Main, CornerRadius = UDim.new(0, 18 * ScaleFactor)})
     Create("UIStroke", {Parent = Main, Color = Color3.fromRGB(40, 40, 40), Thickness = 1.5 * ScaleFactor})
 
-    -- Header
     local Header = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(1, 0, 0, 52 * ScaleFactor),
@@ -164,7 +159,6 @@ function Library:CreateWindow(Settings)
     Create("UICorner", {Parent = Close, CornerRadius = UDim.new(1,0)})
     Create("UICorner", {Parent = Minimize, CornerRadius = UDim.new(1,0)})
 
-    -- Tabs Container
     local Tabs = Create("Frame", {
         Parent = Main,
         Position = UDim2.new(0, 12 * ScaleFactor, 0, 64 * ScaleFactor),
@@ -179,7 +173,6 @@ function Library:CreateWindow(Settings)
         SortOrder = Enum.SortOrder.LayoutOrder
     })
 
-    -- Pages
     local Pages = Create("Frame", {
         Parent = Main,
         Position = UDim2.new(0, 190 * ScaleFactor, 0, 64 * ScaleFactor),
@@ -187,7 +180,6 @@ function Library:CreateWindow(Settings)
         BackgroundTransparency = 1
     })
 
-    -- ==================== FLOATING BUTTON ====================
     local Floating = Create("TextButton", {
         Parent = ScreenGui,
         Size = UDim2.new(0, 58 * ScaleFactor, 0, 58 * ScaleFactor),
@@ -203,7 +195,6 @@ function Library:CreateWindow(Settings)
     Create("UICorner", {Parent = Floating, CornerRadius = UDim.new(1,0)})
     Create("UIStroke", {Parent = Floating, Color = Color3.fromRGB(70,70,70), Thickness = 1})
 
-    -- Floating Button Logic
     local FloatingDragging = false
     local FloatingStartPos
     local FloatingStartFramePos
@@ -248,19 +239,17 @@ function Library:CreateWindow(Settings)
         end
     end)
 
-    -- Minimize & Close
     Minimize.MouseButton1Click:Connect(function()
         Main.Visible = false
         Floating.Visible = true
     end)
 
     Close.MouseButton1Click:Connect(function()
-        Library:Destroy()
+        if Library.Destroy then Library:Destroy() end
         task.wait(0.1)
         ScreenGui:Destroy()
     end)
 
-    -- ==================== DRAG & RESIZE ====================
     local Dragging, Resizing = false, false
     local StartPos, StartFramePos, StartSize, StartMousePos
 
@@ -322,7 +311,6 @@ function Library:CreateWindow(Settings)
         end
     end)
 
-    -- ==================== TAB SYSTEM ====================
     function Window:AddTab(Name)
         local Tab = {}
 
@@ -373,7 +361,6 @@ function Library:CreateWindow(Settings)
             Tween(Button, 0.1, {BackgroundColor3 = Library.AccentColor, TextColor3 = Color3.fromRGB(255,255,255)})
         end
 
-        -- ==================== ADD COMPONENTS ====================
         function Tab:AddSection(Text)
             local Section = Create("TextLabel", {
                 Parent = Page,
@@ -567,7 +554,6 @@ function Library:CreateWindow(Settings)
             return Slider
         end
 
-        -- ==================== DROPDOWN (FIXED) ====================
         function Tab:AddDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
@@ -696,7 +682,6 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
-            -- Click outside handler (tanpa AbsoluteRect)
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not DropList.Visible then return end
@@ -712,7 +697,6 @@ function Library:CreateWindow(Settings)
             return Dropdown
         end
 
-        -- ==================== MULTI DROPDOWN (FIXED) ====================
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
@@ -807,7 +791,7 @@ function Library:CreateWindow(Settings)
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
-            
+
             Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 DropList.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 5)
             end)
@@ -895,7 +879,6 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
-            -- Click outside handler (tanpa AbsoluteRect)
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not Opened then return end
@@ -919,7 +902,7 @@ function Library:CreateWindow(Settings)
                         end
                     end
                 end
-                
+
                 table.clear(Selected)
 
                 for _, child in ipairs(DropList:GetChildren()) do
@@ -999,10 +982,8 @@ function Library:CreateWindow(Settings)
                 end
             }
         end
-        
+
         return Tab
     end
     return Window
 end
-
-return Library
