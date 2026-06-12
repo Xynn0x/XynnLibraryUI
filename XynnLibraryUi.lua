@@ -557,21 +557,29 @@ function Library:CreateWindow(Settings)
 
         -- Dropdown tetap sama (sudah cukup bagus)
         function Tab:AddDropdown(Data)
-            -- ... (kode dropdown kamu yang lama, biarkan tetap sama)
-            -- Saya tidak ubah karena sudah cukup stabil
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
                 return
             end
 
-            local Selected = Data.Default or Data.Options[1]
+            -- Pastikan Data.Options adalah array yang benar
+            local Options = {}
+            for i, v in ipairs(Data.Options) do
+                if type(v) == "table" then
+                    Options[i] = v.Name or tostring(v.Value)
+                else
+                    Options[i] = tostring(v)
+                end
+            end
+
+            local Selected = Data.Default or Options[1]
             Library.Flags[Data.Name] = Selected
 
             local Dropdown = Create("TextButton", {
                 Parent = Page,
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 48 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
-                Text = "   " .. Data.Name .. ": " .. Selected,
+                Text = "   " .. Data.Name .. ": " .. tostring(Selected),
                 TextColor3 = Color3.new(1,1,1),
                 Font = Enum.Font.GothamSemibold,
                 TextSize = 14 * ScaleFactor,
@@ -605,26 +613,27 @@ function Library:CreateWindow(Settings)
                 ScrollingDirection = Enum.ScrollingDirection.Y
             })
 
+            Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0, 10)})
+            Create("UIStroke", {Parent = DropList, Color = Color3.fromRGB(60,60,60), Thickness = 1})
+
             local Layout = Create("UIListLayout", {
                 Parent = DropList,
                 Padding = UDim.new(0, 2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
-            Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0, 10)})
-            Create("UIStroke", {Parent = DropList, Color = Color3.fromRGB(60,60,60), Thickness = 1})
-
-            Create("UIListLayout", {Parent = DropList, Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder})
 
             local function UpdatePosition()
-                DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
-                DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
+                if Dropdown and Dropdown.AbsolutePosition then
+                    DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
+                    DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
+                end
             end
 
             local function OpenDropdown()
                 UpdatePosition()
                 DropList.Visible = true
                 local maxHeight = 180
-                local targetHeight = math.min(#Data.Options * 32 + 10, maxHeight)
+                local targetHeight = math.min(#Options * 32 + 10, maxHeight)
                 Tween(DropList, 0.25, {
                     Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, targetHeight)
                 })
@@ -639,12 +648,12 @@ function Library:CreateWindow(Settings)
                 if DropList.Visible then CloseDropdown() else OpenDropdown() end
             end)
 
-            for _, option in ipairs(Data.Options) do
+            for _, option in ipairs(Options) do
                 local OptionBtn = Create("TextButton", {
                     Parent = DropList,
                     Size = UDim2.new(1, 0, 0, 30),
                     BackgroundTransparency = 1,
-                    Text = "   " .. option,
+                    Text = "   " .. tostring(option),
                     TextColor3 = Color3.fromRGB(200,200,200),
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
@@ -655,7 +664,7 @@ function Library:CreateWindow(Settings)
                 OptionBtn.MouseButton1Click:Connect(function()
                     Selected = option
                     Library.Flags[Data.Name] = Selected
-                    Dropdown.Text = "   " .. Data.Name .. ": " .. Selected
+                    Dropdown.Text = "   " .. Data.Name .. ": " .. tostring(Selected)
                     if Data.Callback then Data.Callback(option) end
                     CloseDropdown()
                 end)
@@ -671,31 +680,44 @@ function Library:CreateWindow(Settings)
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     local MousePos = UserInputService:GetMouseLocation()
-                    if not Dropdown.AbsoluteRect:Contains(MousePos) and not DropList.AbsoluteRect:Contains(MousePos) then
-                        if DropList.Visible then CloseDropdown() end
+                    if Dropdown and DropList and Dropdown.AbsoluteRect and DropList.AbsoluteRect then
+                        if not Dropdown.AbsoluteRect:Contains(MousePos) and not DropList.AbsoluteRect:Contains(MousePos) then
+                            if DropList.Visible then CloseDropdown() end
+                        end
                     end
                 end
             end)
 
             return Dropdown
         end
+        
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
                 return
             end
 
+            -- Konversi options ke string
+            local Options = {}
+            for i, v in ipairs(Data.Options) do
+                if type(v) == "table" then
+                    Options[i] = v.Name or tostring(v.Value)
+                else
+                    Options[i] = tostring(v)
+                end
+            end
+
             local Selected = {}
 
             if Data.Default then
                 for _, v in ipairs(Data.Default) do
-                    Selected[v] = true
+                    Selected[tostring(v)] = true
                 end
             end
 
             local function GetSelectedList()
                 local List = {}
-                for _, option in ipairs(Data.Options) do
+                for _, option in ipairs(Options) do
                     if Selected[option] then
                         table.insert(List, option)
                     end
@@ -717,7 +739,6 @@ function Library:CreateWindow(Settings)
 
             Library.Flags[Data.Name] = GetSelectedList()
 
-            -- ================= UI BUTTON =================
             local Dropdown = Create("TextButton", {
                 Parent = Page,
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 48 * ScaleFactor),
@@ -743,10 +764,9 @@ function Library:CreateWindow(Settings)
                 TextSize = 16 * ScaleFactor
             })
 
-            -- ================= DROPDOWN (SCROLL FIXED) =================
             local DropList = Create("ScrollingFrame", {
                 Parent = ScreenGui,
-                Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 200 * ScaleFactor),
+                Size = UDim2.new(0, 0, 0, 200 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(28,28,28),
                 Visible = false,
                 ScrollBarThickness = 4,
@@ -765,27 +785,19 @@ function Library:CreateWindow(Settings)
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
+            
             Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                DropList.CanvasSize = UDim2.new(
-                    0,
-                    0,
-                    0,
-                    Layout.AbsoluteContentSize.Y + 5
-                )
+                DropList.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 5)
             end)
 
             local function UpdatePosition()
-                DropList.Position = UDim2.new(
-                    0,
-                    Dropdown.AbsolutePosition.X,
-                    0,
-                    Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4
-                )
+                if Dropdown and Dropdown.AbsolutePosition then
+                    DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
+                end
             end
 
-            -- auto follow UI kalau geser
             game:GetService("RunService").RenderStepped:Connect(function()
-                if DropList.Visible then
+                if DropList and DropList.Visible then
                     UpdatePosition()
                 end
             end)
@@ -794,18 +806,8 @@ function Library:CreateWindow(Settings)
 
             local function OpenDropdown()
                 UpdatePosition()
-                local newHeight = math.clamp(
-                        Layout.AbsoluteContentSize.Y + 5,
-                        0,
-                        200 * ScaleFactor
-                    )
-
-                    DropList.Size = UDim2.new(
-                        0,
-                        Dropdown.AbsoluteSize.X,
-                        0,
-                        newHeight
-                    )
+                local newHeight = math.clamp(Layout.AbsoluteContentSize.Y + 5, 0, 200 * ScaleFactor)
+                DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, newHeight)
                 DropList.Visible = true
                 Opened = true
                 Arrow.Text = "▲"
@@ -825,8 +827,7 @@ function Library:CreateWindow(Settings)
                 end
             end)
 
-            -- ================= OPTIONS =================
-            for _, option in ipairs(Data.Options) do
+            for _, option in ipairs(Options) do
                 local OptionBtn = Create("TextButton", {
                     Parent = DropList,
                     Size = UDim2.new(1,0,0,30 * ScaleFactor),
@@ -841,9 +842,7 @@ function Library:CreateWindow(Settings)
                     Size = UDim2.new(0,18,0,18),
                     ZIndex = 202,
                     Position = UDim2.new(0,8,0.5,-9),
-                    BackgroundColor3 = Selected[option]
-                        and Library.AccentColor
-                        or Color3.fromRGB(55,55,55)
+                    BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                 })
 
                 Create("UICorner", {Parent = Check, CornerRadius = UDim.new(0,4)})
@@ -865,10 +864,7 @@ function Library:CreateWindow(Settings)
                     Selected[option] = not Selected[option]
 
                     Tween(Check,0.15,{
-                        BackgroundColor3 =
-                            Selected[option]
-                            and Library.AccentColor
-                            or Color3.fromRGB(55,55,55)
+                        BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                     })
 
                     Library.Flags[Data.Name] = GetSelectedList()
@@ -879,13 +875,21 @@ function Library:CreateWindow(Settings)
                     end
                 end)
             end
-            local function Refresh(newOptions)
-                Data.Options = newOptions or {}
 
-                -- reset selected
+            local function Refresh(newOptions)
+                if newOptions then
+                    Options = {}
+                    for i, v in ipairs(newOptions) do
+                        if type(v) == "table" then
+                            Options[i] = v.Name or tostring(v.Value)
+                        else
+                            Options[i] = tostring(v)
+                        end
+                    end
+                end
+                
                 table.clear(Selected)
 
-                -- hapus semua option lama
                 for _, child in ipairs(DropList:GetChildren()) do
                     if child:IsA("TextButton") then
                         child:Destroy()
@@ -894,8 +898,7 @@ function Library:CreateWindow(Settings)
 
                 task.wait()
 
-                -- buat ulang option
-                for _, option in ipairs(Data.Options) do
+                for _, option in ipairs(Options) do
                     local OptionBtn = Create("TextButton", {
                         Parent = DropList,
                         Size = UDim2.new(1,0,0,30 * ScaleFactor),
@@ -913,10 +916,7 @@ function Library:CreateWindow(Settings)
                         ZIndex = 202
                     })
 
-                    Create("UICorner", {
-                        Parent = Check,
-                        CornerRadius = UDim.new(0,4)
-                    })
+                    Create("UICorner", {Parent = Check, CornerRadius = UDim.new(0,4)})
 
                     Create("TextLabel", {
                         Parent = OptionBtn,
@@ -935,10 +935,7 @@ function Library:CreateWindow(Settings)
                         Selected[option] = not Selected[option]
 
                         Tween(Check,0.15,{
-                            BackgroundColor3 =
-                                Selected[option]
-                                and Library.AccentColor
-                                or Color3.fromRGB(55,55,55)
+                            BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                         })
 
                         Library.Flags[Data.Name] = GetSelectedList()
@@ -950,29 +947,12 @@ function Library:CreateWindow(Settings)
                     end)
                 end
 
-                -- FORCE canvas refresh
                 task.wait()
-
-                DropList.CanvasSize = UDim2.new(
-                    0,
-                    0,
-                    0,
-                    Layout.AbsoluteContentSize.Y + 5
-                )
+                DropList.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 5)
 
                 if Opened then
-                    local newHeight = math.clamp(
-                        Layout.AbsoluteContentSize.Y + 5,
-                        0,
-                        200 * ScaleFactor
-                    )
-
-                    DropList.Size = UDim2.new(
-                        0,
-                        Dropdown.AbsoluteSize.X,
-                        0,
-                        newHeight
-                    )
+                    local newHeight = math.clamp(Layout.AbsoluteContentSize.Y + 5, 0, 200 * ScaleFactor)
+                    DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, newHeight)
                 end
 
                 Dropdown.Text = "   " .. UpdateDisplayText()
@@ -982,13 +962,9 @@ function Library:CreateWindow(Settings)
                 Button = Dropdown,
                 DropList = DropList,
                 Refresh = Refresh,
-
                 Destroy = function()
                     pcall(function()
                         Dropdown:Destroy()
-                    end)
-
-                    pcall(function()
                         DropList:Destroy()
                     end)
                 end
