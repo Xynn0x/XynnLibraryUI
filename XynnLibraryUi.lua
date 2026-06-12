@@ -556,6 +556,7 @@ function Library:CreateWindow(Settings)
         end
 
         -- Dropdown tetap sama (sudah cukup bagus)
+        -- Perbaikan fungsi AddDropdown (bagian akhir untuk menutup dropdown saat klik di luar)
         function Tab:AddDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
@@ -584,7 +585,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextSize = 14 * ScaleFactor,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                ZIndex = 50
+                ZIndex = 50,
+                AutoButtonColor = false
             })
             Create("UICorner", {Parent = Dropdown, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Dropdown, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -610,7 +612,8 @@ function Library:CreateWindow(Settings)
                 ScrollBarThickness = 4,
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
                 CanvasSize = UDim2.new(0,0,0,0),
-                ScrollingDirection = Enum.ScrollingDirection.Y
+                ScrollingDirection = Enum.ScrollingDirection.Y,
+                ClipsDescendants = true
             })
 
             Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0, 10)})
@@ -641,11 +644,16 @@ function Library:CreateWindow(Settings)
 
             local function CloseDropdown()
                 Tween(DropList, 0.2, {Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)})
+                task.wait(0.2)
                 DropList.Visible = false
             end
 
             Dropdown.MouseButton1Click:Connect(function()
-                if DropList.Visible then CloseDropdown() else OpenDropdown() end
+                if DropList.Visible then 
+                    CloseDropdown() 
+                else 
+                    OpenDropdown() 
+                end
             end)
 
             for _, option in ipairs(Options) do
@@ -658,7 +666,8 @@ function Library:CreateWindow(Settings)
                     Font = Enum.Font.Gotham,
                     TextSize = 14,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    ZIndex = 201
+                    ZIndex = 201,
+                    AutoButtonColor = false
                 })
 
                 OptionBtn.MouseButton1Click:Connect(function()
@@ -677,13 +686,25 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
+            -- Perbaikan: Membuat fungsi untuk mengecek klik di luar tanpa menggunakan AbsoluteRect
+            local function IsMouseOverGui(guiObject, mousePos)
+                if not guiObject or not guiObject.AbsolutePosition then return false end
+                local pos = guiObject.AbsolutePosition
+                local size = guiObject.AbsoluteSize
+                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
+                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
+            end
+
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if not DropList.Visible then return end
+                    
                     local MousePos = UserInputService:GetMouseLocation()
-                    if Dropdown and DropList and Dropdown.AbsoluteRect and DropList.AbsoluteRect then
-                        if not Dropdown.AbsoluteRect:Contains(MousePos) and not DropList.AbsoluteRect:Contains(MousePos) then
-                            if DropList.Visible then CloseDropdown() end
-                        end
+                    local overDropdown = IsMouseOverGui(Dropdown, MousePos)
+                    local overDropList = IsMouseOverGui(DropList, MousePos)
+                    
+                    if not overDropdown and not overDropList then
+                        CloseDropdown()
                     end
                 end
             end)
@@ -691,6 +712,7 @@ function Library:CreateWindow(Settings)
             return Dropdown
         end
         
+                -- Perbaikan fungsi AddMultiDropdown (bagian click outside)
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
@@ -747,7 +769,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AutoButtonColor = false
             })
 
             Create("UICorner", {Parent = Dropdown, CornerRadius = UDim.new(0,12 * ScaleFactor)})
@@ -774,7 +797,8 @@ function Library:CreateWindow(Settings)
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
                 CanvasSize = UDim2.new(0,0,0,0),
                 BorderSizePixel = 0,
-                ZIndex = 200
+                ZIndex = 200,
+                ClipsDescendants = true
             })
 
             Create("UICorner", {Parent = DropList, CornerRadius = UDim.new(0,10)})
@@ -875,6 +899,29 @@ function Library:CreateWindow(Settings)
                     end
                 end)
             end
+
+            -- Fungsi untuk mengecek klik di luar
+            local function IsMouseOverGui(guiObject, mousePos)
+                if not guiObject or not guiObject.AbsolutePosition then return false end
+                local pos = guiObject.AbsolutePosition
+                local size = guiObject.AbsoluteSize
+                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
+                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
+            end
+
+            UserInputService.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    if not Opened then return end
+                    
+                    local MousePos = UserInputService:GetMouseLocation()
+                    local overDropdown = IsMouseOverGui(Dropdown, MousePos)
+                    local overDropList = IsMouseOverGui(DropList, MousePos)
+                    
+                    if not overDropdown and not overDropList then
+                        CloseDropdown()
+                    end
+                end
+            end)
 
             local function Refresh(newOptions)
                 if newOptions then
