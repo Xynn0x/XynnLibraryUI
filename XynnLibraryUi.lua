@@ -22,16 +22,26 @@ end
 
 -- ==================== AUTO SCALE FOR MOBILE ====================
 local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local ScaleFactor = IsMobile and 0.78 or 1  -- Sedikit lebih besar dari 0.75 agar tetap nyaman
+local ScaleFactor = IsMobile and 0.78 or 1
 
 -- ==================== SET ACCENT COLOR ====================
 function Library:SetAccentColor(Color)
     Library.AccentColor = Color
 end
 
+-- Fungsi untuk mengecek mouse over GUI (tanpa AbsoluteRect)
+local function IsMouseOverGui(guiObject, mousePos)
+    if not guiObject or not guiObject.AbsolutePosition then return false end
+    local pos = guiObject.AbsolutePosition
+    local size = guiObject.AbsoluteSize
+    return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
+           mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
+end
+
 -- ==================== NOTIFICATION ====================
 function Library:Notify(Data)
     local Gui = self.ScreenGui
+    if not Gui then return end
     local Holder = Gui:FindFirstChild("Notifications") or Create("Frame", {
         Name = "Notifications",
         Parent = Gui,
@@ -138,7 +148,8 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -33 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(232, 17, 35)
+        BackgroundColor3 = Color3.fromRGB(232, 17, 35),
+        AutoButtonColor = false
     })
     
     local Minimize = Create("TextButton", {
@@ -146,7 +157,8 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -58 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(255, 179, 26)
+        BackgroundColor3 = Color3.fromRGB(255, 179, 26),
+        AutoButtonColor = false
     })
 
     Create("UICorner", {Parent = Close, CornerRadius = UDim.new(1,0)})
@@ -248,7 +260,7 @@ function Library:CreateWindow(Settings)
         ScreenGui:Destroy()
     end)
 
-    -- ==================== DRAG & RESIZE (FIXED FOR MOBILE) ====================
+    -- ==================== DRAG & RESIZE ====================
     local Dragging, Resizing = false, false
     local StartPos, StartFramePos, StartSize, StartMousePos
 
@@ -288,7 +300,6 @@ function Library:CreateWindow(Settings)
     end)
 
     UserInputService.InputChanged:Connect(function(i)
-        -- Drag
         if Dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
             local Delta = i.Position - StartPos
             Main.Position = UDim2.new(
@@ -296,7 +307,6 @@ function Library:CreateWindow(Settings)
                 StartFramePos.Y.Scale, StartFramePos.Y.Offset + Delta.Y
             )
         end
-        -- Resize
         if Resizing and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
             local Delta = i.Position - StartMousePos
             local newW = math.clamp(StartSize.X.Offset + Delta.X, 650 * ScaleFactor, 1100 * ScaleFactor)
@@ -325,7 +335,8 @@ function Library:CreateWindow(Settings)
             TextColor3 = Color3.fromRGB(190, 190, 190),
             TextSize = 14 * ScaleFactor,
             TextXAlignment = Enum.TextXAlignment.Left,
-            BorderSizePixel = 0
+            BorderSizePixel = 0,
+            AutoButtonColor = false
         })
         Create("UICorner", {Parent = Button, CornerRadius = UDim.new(0, 10 * ScaleFactor)})
 
@@ -362,7 +373,7 @@ function Library:CreateWindow(Settings)
             Tween(Button, 0.1, {BackgroundColor3 = Library.AccentColor, TextColor3 = Color3.fromRGB(255,255,255)})
         end
 
-        -- ==================== ADD SECTION, DIVIDER, BUTTON, TOGGLE (Scaled) ====================
+        -- ==================== ADD COMPONENTS ====================
         function Tab:AddSection(Text)
             local Section = Create("TextLabel", {
                 Parent = Page,
@@ -417,7 +428,8 @@ function Library:CreateWindow(Settings)
                 Text = Data.Name,
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
-                TextSize = 14 * ScaleFactor
+                TextSize = 14 * ScaleFactor,
+                AutoButtonColor = false
             })
             Create("UICorner", {Parent = Btn, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Btn, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -442,7 +454,8 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left
+                TextXAlignment = Enum.TextXAlignment.Left,
+                AutoButtonColor = false
             })
             Create("UICorner", {Parent = Toggle, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Toggle, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -463,7 +476,6 @@ function Library:CreateWindow(Settings)
             end)
         end
 
-        -- ==================== SLIDER (FIXED FOR MOBILE) ====================
         function Tab:AddSlider(Data)
             local Value = Data.Default or Data.Min
             Library.Flags[Data.Name] = Value
@@ -473,6 +485,7 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 58 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "",
+                AutoButtonColor = false
             })
             Create("UICorner", {Parent = Slider, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Slider, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -524,7 +537,6 @@ function Library:CreateWindow(Settings)
 
             local Dragging = false
 
-            -- Support Mouse & Touch
             Slider.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     Dragging = true
@@ -555,15 +567,13 @@ function Library:CreateWindow(Settings)
             return Slider
         end
 
-        -- Dropdown tetap sama (sudah cukup bagus)
-        -- Perbaikan fungsi AddDropdown (bagian akhir untuk menutup dropdown saat klik di luar)
+        -- ==================== DROPDOWN (FIXED) ====================
         function Tab:AddDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
                 return
             end
 
-            -- Pastikan Data.Options adalah array yang benar
             local Options = {}
             for i, v in ipairs(Data.Options) do
                 if type(v) == "table" then
@@ -628,12 +638,12 @@ function Library:CreateWindow(Settings)
             local function UpdatePosition()
                 if Dropdown and Dropdown.AbsolutePosition then
                     DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
-                    DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
                 end
             end
 
             local function OpenDropdown()
                 UpdatePosition()
+                DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
                 DropList.Visible = true
                 local maxHeight = 180
                 local targetHeight = math.min(#Options * 32 + 10, maxHeight)
@@ -686,23 +696,13 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
-            -- Perbaikan: Membuat fungsi untuk mengecek klik di luar tanpa menggunakan AbsoluteRect
-            local function IsMouseOverGui(guiObject, mousePos)
-                if not guiObject or not guiObject.AbsolutePosition then return false end
-                local pos = guiObject.AbsolutePosition
-                local size = guiObject.AbsoluteSize
-                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
-                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
-            end
-
+            -- Click outside handler (tanpa AbsoluteRect)
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not DropList.Visible then return end
-                    
                     local MousePos = UserInputService:GetMouseLocation()
                     local overDropdown = IsMouseOverGui(Dropdown, MousePos)
                     local overDropList = IsMouseOverGui(DropList, MousePos)
-                    
                     if not overDropdown and not overDropList then
                         CloseDropdown()
                     end
@@ -711,15 +711,14 @@ function Library:CreateWindow(Settings)
 
             return Dropdown
         end
-        
-                -- Perbaikan fungsi AddMultiDropdown (bagian click outside)
+
+        -- ==================== MULTI DROPDOWN (FIXED) ====================
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
                 return
             end
 
-            -- Konversi options ke string
             local Options = {}
             for i, v in ipairs(Data.Options) do
                 if type(v) == "table" then
@@ -749,7 +748,6 @@ function Library:CreateWindow(Settings)
 
             local function UpdateDisplayText()
                 local List = GetSelectedList()
-
                 if #List == 0 then
                     return Data.Name .. ": None"
                 elseif #List <= 2 then
@@ -886,37 +884,24 @@ function Library:CreateWindow(Settings)
 
                 OptionBtn.MouseButton1Click:Connect(function()
                     Selected[option] = not Selected[option]
-
                     Tween(Check,0.15,{
                         BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                     })
-
                     Library.Flags[Data.Name] = GetSelectedList()
                     Dropdown.Text = "   " .. UpdateDisplayText()
-
                     if Data.Callback then
                         Data.Callback(GetSelectedList())
                     end
                 end)
             end
 
-            -- Fungsi untuk mengecek klik di luar
-            local function IsMouseOverGui(guiObject, mousePos)
-                if not guiObject or not guiObject.AbsolutePosition then return false end
-                local pos = guiObject.AbsolutePosition
-                local size = guiObject.AbsoluteSize
-                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
-                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
-            end
-
+            -- Click outside handler (tanpa AbsoluteRect)
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not Opened then return end
-                    
                     local MousePos = UserInputService:GetMouseLocation()
                     local overDropdown = IsMouseOverGui(Dropdown, MousePos)
                     local overDropList = IsMouseOverGui(DropList, MousePos)
-                    
                     if not overDropdown and not overDropList then
                         CloseDropdown()
                     end
@@ -980,14 +965,11 @@ function Library:CreateWindow(Settings)
 
                     OptionBtn.MouseButton1Click:Connect(function()
                         Selected[option] = not Selected[option]
-
                         Tween(Check,0.15,{
                             BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                         })
-
                         Library.Flags[Data.Name] = GetSelectedList()
                         Dropdown.Text = "   " .. UpdateDisplayText()
-
                         if Data.Callback then
                             Data.Callback(GetSelectedList())
                         end
@@ -1017,6 +999,7 @@ function Library:CreateWindow(Settings)
                 end
             }
         end
+        
         return Tab
     end
     return Window
