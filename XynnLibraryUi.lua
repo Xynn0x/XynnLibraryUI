@@ -634,12 +634,11 @@ function Library:CreateWindow(Settings)
 
             local function OpenDropdown()
                 UpdatePosition()
-                DropList.Visible = true
                 local maxHeight = 180
                 local targetHeight = math.min(#Options * 32 + 10, maxHeight)
-                Tween(DropList, 0.25, {
-                    Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, targetHeight)
-                })
+                -- Set langsung tanpa tween supaya IsMouseOverGui baca size yang benar
+                DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, targetHeight)
+                DropList.Visible = true
             end
 
             local function CloseDropdown()
