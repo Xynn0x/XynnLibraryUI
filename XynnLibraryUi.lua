@@ -1,4 +1,3 @@
--- LIBRARY FIXED (tanpa AbsoluteRect)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -7,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local Library = {}
 Library.Flags = {}
 Library.Connections = {}
-Library.AccentColor = Color3.fromRGB(0, 170, 255)
+Library.AccentColor = Color3.fromRGB(0, 170, 255)  -- Default Accent
 
 local function Tween(Object, Time, Properties)
     TweenService:Create(Object, TweenInfo.new(Time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), Properties):Play()
@@ -19,27 +18,20 @@ local function Create(Class, Props)
         Obj[i] = v
     end
     return Obj
-end
+end 
 
+-- ==================== AUTO SCALE FOR MOBILE ====================
 local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local ScaleFactor = IsMobile and 0.78 or 1
+local ScaleFactor = IsMobile and 0.78 or 1  -- Sedikit lebih besar dari 0.75 agar tetap nyaman
 
+-- ==================== SET ACCENT COLOR ====================
 function Library:SetAccentColor(Color)
     Library.AccentColor = Color
 end
 
--- Fungsi pengecekan mouse over (tanpa AbsoluteRect)
-local function IsMouseOverGui(guiObject, mousePos)
-    if not guiObject or not guiObject.AbsolutePosition then return false end
-    local pos = guiObject.AbsolutePosition
-    local size = guiObject.AbsoluteSize
-    return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
-           mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
-end
-
+-- ==================== NOTIFICATION ====================
 function Library:Notify(Data)
     local Gui = self.ScreenGui
-    if not Gui then return end
     local Holder = Gui:FindFirstChild("Notifications") or Create("Frame", {
         Name = "Notifications",
         Parent = Gui,
@@ -94,6 +86,7 @@ function Library:Notify(Data)
     end)
 end
 
+-- ==================== CREATE WINDOW ====================
 function Library:CreateWindow(Settings)
     local Window = {}
     local ScreenGui = Create("ScreenGui", {
@@ -109,6 +102,7 @@ function Library:CreateWindow(Settings)
         Library.AccentColor = Settings.AccentColor
     end
 
+    -- ==================== MAIN FRAME ====================
     local Main = Create("Frame", {
         Parent = ScreenGui,
         Size = UDim2.new(0, 650 * ScaleFactor, 0, 420 * ScaleFactor),
@@ -120,6 +114,7 @@ function Library:CreateWindow(Settings)
     Create("UICorner", {Parent = Main, CornerRadius = UDim.new(0, 18 * ScaleFactor)})
     Create("UIStroke", {Parent = Main, Color = Color3.fromRGB(40, 40, 40), Thickness = 1.5 * ScaleFactor})
 
+    -- Header
     local Header = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(1, 0, 0, 52 * ScaleFactor),
@@ -143,8 +138,7 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -33 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(232, 17, 35),
-        AutoButtonColor = false
+        BackgroundColor3 = Color3.fromRGB(232, 17, 35)
     })
     
     local Minimize = Create("TextButton", {
@@ -152,13 +146,13 @@ function Library:CreateWindow(Settings)
         Position = UDim2.new(1, -58 * ScaleFactor, 0, 14 * ScaleFactor), 
         Size = UDim2.new(0, 19 * ScaleFactor, 0, 19 * ScaleFactor), 
         Text = "", 
-        BackgroundColor3 = Color3.fromRGB(255, 179, 26),
-        AutoButtonColor = false
+        BackgroundColor3 = Color3.fromRGB(255, 179, 26)
     })
 
     Create("UICorner", {Parent = Close, CornerRadius = UDim.new(1,0)})
     Create("UICorner", {Parent = Minimize, CornerRadius = UDim.new(1,0)})
 
+    -- Tabs Container
     local Tabs = Create("Frame", {
         Parent = Main,
         Position = UDim2.new(0, 12 * ScaleFactor, 0, 64 * ScaleFactor),
@@ -173,6 +167,7 @@ function Library:CreateWindow(Settings)
         SortOrder = Enum.SortOrder.LayoutOrder
     })
 
+    -- Pages
     local Pages = Create("Frame", {
         Parent = Main,
         Position = UDim2.new(0, 190 * ScaleFactor, 0, 64 * ScaleFactor),
@@ -180,6 +175,7 @@ function Library:CreateWindow(Settings)
         BackgroundTransparency = 1
     })
 
+    -- ==================== FLOATING BUTTON ====================
     local Floating = Create("TextButton", {
         Parent = ScreenGui,
         Size = UDim2.new(0, 58 * ScaleFactor, 0, 58 * ScaleFactor),
@@ -195,6 +191,7 @@ function Library:CreateWindow(Settings)
     Create("UICorner", {Parent = Floating, CornerRadius = UDim.new(1,0)})
     Create("UIStroke", {Parent = Floating, Color = Color3.fromRGB(70,70,70), Thickness = 1})
 
+    -- Floating Button Logic
     local FloatingDragging = false
     local FloatingStartPos
     local FloatingStartFramePos
@@ -239,17 +236,19 @@ function Library:CreateWindow(Settings)
         end
     end)
 
+    -- Minimize & Close
     Minimize.MouseButton1Click:Connect(function()
         Main.Visible = false
         Floating.Visible = true
     end)
 
     Close.MouseButton1Click:Connect(function()
-        if Library.Destroy then Library:Destroy() end
+        Library:Destroy()
         task.wait(0.1)
         ScreenGui:Destroy()
     end)
 
+    -- ==================== DRAG & RESIZE (FIXED FOR MOBILE) ====================
     local Dragging, Resizing = false, false
     local StartPos, StartFramePos, StartSize, StartMousePos
 
@@ -289,6 +288,7 @@ function Library:CreateWindow(Settings)
     end)
 
     UserInputService.InputChanged:Connect(function(i)
+        -- Drag
         if Dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
             local Delta = i.Position - StartPos
             Main.Position = UDim2.new(
@@ -296,6 +296,7 @@ function Library:CreateWindow(Settings)
                 StartFramePos.Y.Scale, StartFramePos.Y.Offset + Delta.Y
             )
         end
+        -- Resize
         if Resizing and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
             local Delta = i.Position - StartMousePos
             local newW = math.clamp(StartSize.X.Offset + Delta.X, 650 * ScaleFactor, 1100 * ScaleFactor)
@@ -311,6 +312,7 @@ function Library:CreateWindow(Settings)
         end
     end)
 
+    -- ==================== TAB SYSTEM ====================
     function Window:AddTab(Name)
         local Tab = {}
 
@@ -323,8 +325,7 @@ function Library:CreateWindow(Settings)
             TextColor3 = Color3.fromRGB(190, 190, 190),
             TextSize = 14 * ScaleFactor,
             TextXAlignment = Enum.TextXAlignment.Left,
-            BorderSizePixel = 0,
-            AutoButtonColor = false
+            BorderSizePixel = 0
         })
         Create("UICorner", {Parent = Button, CornerRadius = UDim.new(0, 10 * ScaleFactor)})
 
@@ -361,6 +362,7 @@ function Library:CreateWindow(Settings)
             Tween(Button, 0.1, {BackgroundColor3 = Library.AccentColor, TextColor3 = Color3.fromRGB(255,255,255)})
         end
 
+        -- ==================== ADD SECTION, DIVIDER, BUTTON, TOGGLE (Scaled) ====================
         function Tab:AddSection(Text)
             local Section = Create("TextLabel", {
                 Parent = Page,
@@ -415,8 +417,7 @@ function Library:CreateWindow(Settings)
                 Text = Data.Name,
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
-                TextSize = 14 * ScaleFactor,
-                AutoButtonColor = false
+                TextSize = 14 * ScaleFactor
             })
             Create("UICorner", {Parent = Btn, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Btn, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -441,8 +442,7 @@ function Library:CreateWindow(Settings)
                 Font = Enum.Font.GothamSemibold,
                 TextColor3 = Color3.new(1,1,1),
                 TextSize = 14 * ScaleFactor,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                AutoButtonColor = false
+                TextXAlignment = Enum.TextXAlignment.Left
             })
             Create("UICorner", {Parent = Toggle, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Toggle, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -463,6 +463,7 @@ function Library:CreateWindow(Settings)
             end)
         end
 
+        -- ==================== SLIDER (FIXED FOR MOBILE) ====================
         function Tab:AddSlider(Data)
             local Value = Data.Default or Data.Min
             Library.Flags[Data.Name] = Value
@@ -472,7 +473,6 @@ function Library:CreateWindow(Settings)
                 Size = UDim2.new(1, -20 * ScaleFactor, 0, 58 * ScaleFactor),
                 BackgroundColor3 = Color3.fromRGB(32, 32, 32),
                 Text = "",
-                AutoButtonColor = false
             })
             Create("UICorner", {Parent = Slider, CornerRadius = UDim.new(0, 12 * ScaleFactor)})
             Create("UIStroke", {Parent = Slider, Color = Color3.fromRGB(50,50,50), Thickness = 1})
@@ -524,6 +524,7 @@ function Library:CreateWindow(Settings)
 
             local Dragging = false
 
+            -- Support Mouse & Touch
             Slider.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     Dragging = true
@@ -554,12 +555,15 @@ function Library:CreateWindow(Settings)
             return Slider
         end
 
+        -- Dropdown tetap sama (sudah cukup bagus)
+        -- Perbaikan fungsi AddDropdown (bagian akhir untuk menutup dropdown saat klik di luar)
         function Tab:AddDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("Dropdown ".. (Data.Name or "unknown") .." tidak memiliki Options!")
                 return
             end
 
+            -- Pastikan Data.Options adalah array yang benar
             local Options = {}
             for i, v in ipairs(Data.Options) do
                 if type(v) == "table" then
@@ -624,12 +628,12 @@ function Library:CreateWindow(Settings)
             local function UpdatePosition()
                 if Dropdown and Dropdown.AbsolutePosition then
                     DropList.Position = UDim2.new(0, Dropdown.AbsolutePosition.X, 0, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 4)
+                    DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
                 end
             end
 
             local function OpenDropdown()
                 UpdatePosition()
-                DropList.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, 0)
                 DropList.Visible = true
                 local maxHeight = 180
                 local targetHeight = math.min(#Options * 32 + 10, maxHeight)
@@ -682,12 +686,23 @@ function Library:CreateWindow(Settings)
                 end)
             end
 
+            -- Perbaikan: Membuat fungsi untuk mengecek klik di luar tanpa menggunakan AbsoluteRect
+            local function IsMouseOverGui(guiObject, mousePos)
+                if not guiObject or not guiObject.AbsolutePosition then return false end
+                local pos = guiObject.AbsolutePosition
+                local size = guiObject.AbsoluteSize
+                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
+                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
+            end
+
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not DropList.Visible then return end
+                    
                     local MousePos = UserInputService:GetMouseLocation()
                     local overDropdown = IsMouseOverGui(Dropdown, MousePos)
                     local overDropList = IsMouseOverGui(DropList, MousePos)
+                    
                     if not overDropdown and not overDropList then
                         CloseDropdown()
                     end
@@ -696,13 +711,15 @@ function Library:CreateWindow(Settings)
 
             return Dropdown
         end
-
+        
+                -- Perbaikan fungsi AddMultiDropdown (bagian click outside)
         function Tab:AddMultiDropdown(Data)
             if not Data.Options or #Data.Options == 0 then
                 warn("MultiDropdown "..(Data.Name or "unknown").." tidak memiliki Options!")
                 return
             end
 
+            -- Konversi options ke string
             local Options = {}
             for i, v in ipairs(Data.Options) do
                 if type(v) == "table" then
@@ -732,6 +749,7 @@ function Library:CreateWindow(Settings)
 
             local function UpdateDisplayText()
                 local List = GetSelectedList()
+
                 if #List == 0 then
                     return Data.Name .. ": None"
                 elseif #List <= 2 then
@@ -791,7 +809,7 @@ function Library:CreateWindow(Settings)
                 Padding = UDim.new(0,2),
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
-
+            
             Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 DropList.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 5)
             end)
@@ -868,23 +886,37 @@ function Library:CreateWindow(Settings)
 
                 OptionBtn.MouseButton1Click:Connect(function()
                     Selected[option] = not Selected[option]
+
                     Tween(Check,0.15,{
                         BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                     })
+
                     Library.Flags[Data.Name] = GetSelectedList()
                     Dropdown.Text = "   " .. UpdateDisplayText()
+
                     if Data.Callback then
                         Data.Callback(GetSelectedList())
                     end
                 end)
             end
 
+            -- Fungsi untuk mengecek klik di luar
+            local function IsMouseOverGui(guiObject, mousePos)
+                if not guiObject or not guiObject.AbsolutePosition then return false end
+                local pos = guiObject.AbsolutePosition
+                local size = guiObject.AbsoluteSize
+                return mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and
+                    mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y
+            end
+
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     if not Opened then return end
+                    
                     local MousePos = UserInputService:GetMouseLocation()
                     local overDropdown = IsMouseOverGui(Dropdown, MousePos)
                     local overDropList = IsMouseOverGui(DropList, MousePos)
+                    
                     if not overDropdown and not overDropList then
                         CloseDropdown()
                     end
@@ -902,7 +934,7 @@ function Library:CreateWindow(Settings)
                         end
                     end
                 end
-
+                
                 table.clear(Selected)
 
                 for _, child in ipairs(DropList:GetChildren()) do
@@ -948,11 +980,14 @@ function Library:CreateWindow(Settings)
 
                     OptionBtn.MouseButton1Click:Connect(function()
                         Selected[option] = not Selected[option]
+
                         Tween(Check,0.15,{
                             BackgroundColor3 = Selected[option] and Library.AccentColor or Color3.fromRGB(55,55,55)
                         })
+
                         Library.Flags[Data.Name] = GetSelectedList()
                         Dropdown.Text = "   " .. UpdateDisplayText()
+
                         if Data.Callback then
                             Data.Callback(GetSelectedList())
                         end
@@ -982,8 +1017,9 @@ function Library:CreateWindow(Settings)
                 end
             }
         end
-
         return Tab
     end
     return Window
 end
+
+return Library
